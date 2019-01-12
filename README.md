@@ -6,7 +6,7 @@
 const integrify = require('integrify');
 
 module.exports = {
-  reflectAttributes: integrify({
+  reflectMasterToDetail: integrify({
     rule: 'REFLECT_ATTRIBUTES',
     source: {
       collection: 'master',

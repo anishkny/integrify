@@ -1,14 +1,22 @@
 {
   "name": "integrify",
   "version": "0.0.2",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "lint": "tslint --project ./tsconfig.json",
     "build": "npm run lint && tsc"
   },
   "devDependencies": {
+    "firebase-admin": "^6.5.0",
+    "firebase-functions": "^2.1.0",
     "prettier": "^1.15.3",
     "tslint": "^5.12.1",
     "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.2.2"
+  },
+  "peerDependencies": {
+    "firebase-admin": "^6.5.0",
+    "firebase-functions": "^2.1.0"
   }
 }
