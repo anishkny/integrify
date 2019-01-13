@@ -5,7 +5,8 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "lint": "tslint --project ./tsconfig.json",
-    "build": "npm run lint && tsc"
+    "build": "npm run lint && tsc",
+    "test": "npm run build && node ./test"
   },
   "devDependencies": {
     "firebase-admin": "^6.5.0",

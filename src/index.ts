@@ -27,7 +27,7 @@ const config: Config = {
   config: { db: null, functions: null },
 };
 
-export default function integrify(ruleOrConfig: Rule | Config) {
+export function integrify(ruleOrConfig: Rule | Config) {
   if (isRule(ruleOrConfig)) {
     if (isReflectAttributesRule(ruleOrConfig)) {
       return integrifyReflectAttributes(ruleOrConfig);
