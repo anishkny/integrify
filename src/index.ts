@@ -1,19 +1,18 @@
-export interface ReflectAttributesRule extends Rule {
+export interface ReplicateAttributesRule extends Rule {
   source: {
     collection: string;
   };
   targets: Array<{
     collection: string;
     foreignKey: string;
-    attributes: Array<{
-      from: string;
-      to: string;
-    }>;
+    attributeMapping: {
+      [sourceAttribute: string]: string;
+    };
   }>;
 }
 
 interface Rule {
-  rule: 'REFLECT_ATTRIBUTES' | 'OTHER';
+  rule: 'REPLICATE_ATTRIBUTES' | 'TODO';
 }
 
 export interface Config {
@@ -29,8 +28,8 @@ const config: Config = {
 
 export function integrify(ruleOrConfig: Rule | Config) {
   if (isRule(ruleOrConfig)) {
-    if (isReflectAttributesRule(ruleOrConfig)) {
-      return integrifyReflectAttributes(ruleOrConfig);
+    if (isReplicateAttributesRule(ruleOrConfig)) {
+      return integrifyReplicateAttributes(ruleOrConfig);
     }
   } else if (isConfig) {
     setConfig(ruleOrConfig);
@@ -39,12 +38,91 @@ export function integrify(ruleOrConfig: Rule | Config) {
   }
 }
 
-function integrifyReflectAttributes(rule: ReflectAttributesRule) {
+function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
   const functions = config.config.functions;
+
+  rule.targets.forEach(target => {
+    Object.keys(target.attributeMapping).forEach(sourceAttribute => {
+      console.log(
+        `integrify: Replicating [${
+          rule.source.collection
+        }].[${sourceAttribute}] => [${target.collection}].[${
+          target.attributeMapping[sourceAttribute]
+        }]`
+      );
+    });
+  });
+
   return functions.firestore
-    .document(rule.source.collection)
-    .onUpdate((snap, context) => {
-      // TODO
+    .document(`${rule.source.collection}/{masterId}`)
+    .onUpdate((change, context) => {
+      const newValue = change.after.data();
+
+      // Check if atleast one of the attributes to be replicated was changed
+      const trackedMasterAttributes = {};
+      rule.targets.forEach(target => {
+        Object.keys(target.attributeMapping).forEach(masterAttribute => {
+          trackedMasterAttributes[masterAttribute] = true;
+        });
+      });
+      let relevantUpdate = false;
+      Object.keys(newValue).forEach(changedAttribute => {
+        if (trackedMasterAttributes[changedAttribute]) {
+          relevantUpdate = true;
+        }
+      });
+      if (!relevantUpdate) {
+        return null;
+      }
+
+      // Loop over each target specification to replicate atributes
+      const masterId = context.masterId;
+      const db = config.config.db;
+      const promises = [];
+      rule.targets.forEach(target => {
+        const targetCollection = target.collection;
+        const update = {};
+
+        // Create "update" mapping each changed attribute from source => target
+        Object.keys(newValue).forEach(changedAttribute => {
+          if (target.attributeMapping[changedAttribute]) {
+            update[target.attributeMapping[changedAttribute]] =
+              newValue[changedAttribute];
+          }
+        });
+
+        // For each doc in targetCollection where foreignKey matches master.id,
+        // apply "update" computed above
+        promises.push(
+          db
+            .collection(targetCollection)
+            .where(target.foreignKey, '==', masterId)
+            .get()
+            .then(detailDocs => {
+              detailDocs.forEach(detailDoc => {
+                promises.push(
+                  db
+                    .collection(target.collection)
+                    .doc(detailDoc.id)
+                    .update(update)
+                );
+              });
+            })
+        );
+
+        Object.keys(target.attributeMapping).forEach(sourceAttribute => {
+          console.log(
+            `integrify: Replicating from [${
+              rule.source.collection
+            }].[${sourceAttribute}] => [${target.collection}].[${
+              target.attributeMapping[sourceAttribute]
+            }]`
+          );
+          // TODO
+        });
+      });
+
+      return Promise.all(promises);
     });
 }
 
@@ -61,6 +139,6 @@ function isConfig(arg: Rule | Config): arg is Config {
   return (arg as Config).config !== undefined;
 }
 
-function isReflectAttributesRule(arg: Rule): arg is ReflectAttributesRule {
-  return arg.rule === 'REFLECT_ATTRIBUTES';
+function isReplicateAttributesRule(arg: Rule): arg is ReplicateAttributesRule {
+  return arg.rule === 'REPLICATE_ATTRIBUTES';
 }

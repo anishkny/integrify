@@ -2,7 +2,9 @@
   "compileOnSave": true,
   "compilerOptions": {
     "outDir": "lib",
-    "declaration": true
+    "declaration": true,
+    "target": "es5",
+    "lib": ["es5", "es2015.promise"]
   },
   "include": ["src"]
 }
