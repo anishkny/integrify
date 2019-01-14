@@ -31,6 +31,7 @@ test('online mode', async t => {
   await wrapped(change, { params: { masterId: masterId } });
 
   // Assert that attributes get replicated to detail documents
+  await sleep(5000);
   const result1 = await getQuerySnapshot('detail1', [
     'masterId',
     '==',
