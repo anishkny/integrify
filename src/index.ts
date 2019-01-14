@@ -43,6 +43,11 @@ export function integrify(ruleOrConfig: Rule | Config) {
 function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
   const functions = config.config.functions;
 
+  console.log(
+    `integrify: Creating function to replicate source collection [${
+      rule.source.collection
+    }]`
+  );
   rule.targets.forEach(target => {
     Object.keys(target.attributeMapping).forEach(sourceAttribute => {
       console.log(
@@ -58,7 +63,14 @@ function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
   return functions.firestore
     .document(`${rule.source.collection}/{masterId}`)
     .onUpdate((change, context) => {
+      const masterId = context.params.masterId;
       const newValue = change.after.data();
+      console.log(
+        `integrify: Source collection [${
+          rule.source.collection
+        }], id [${masterId}], new value:`,
+        newValue
+      );
 
       // Check if atleast one of the attributes to be replicated was changed
       const trackedMasterAttributes = {};
@@ -74,11 +86,14 @@ function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
         }
       });
       if (!relevantUpdate) {
+        console.log(
+          `integrify: No relevant updates found for replication:`,
+          newValue
+        );
         return null;
       }
 
       // Loop over each target specification to replicate atributes
-      const masterId = context.params.masterId;
       const db = config.config.db;
       const promises = [];
       rule.targets.forEach(target => {
@@ -92,6 +107,10 @@ function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
               newValue[changedAttribute];
           }
         });
+        console.log(
+          `integrify: On collection [${target.collection}], applying update:`,
+          update
+        );
 
         // For each doc in targetCollection where foreignKey matches master.id,
         // apply "update" computed above
@@ -102,6 +121,12 @@ function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
             .get()
             .then(detailDocs => {
               detailDocs.forEach(detailDoc => {
+                console.log(
+                  `integrify: On collection [${target.collection}], id [${
+                    detailDoc.id
+                  }], applying update:`,
+                  update
+                );
                 promises.push(
                   db
                     .collection(target.collection)
@@ -111,17 +136,6 @@ function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
               });
             })
         );
-
-        Object.keys(target.attributeMapping).forEach(sourceAttribute => {
-          console.log(
-            `integrify: Replicating from [${
-              rule.source.collection
-            }].[${sourceAttribute}] => [${target.collection}].[${
-              target.attributeMapping[sourceAttribute]
-            }]`
-          );
-          // TODO
-        });
       });
 
       return Promise.all(promises);
