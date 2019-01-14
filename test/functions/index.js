@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 
-const { integrify } = require('../lib');
+const { integrify } = require('./integrify');
 
 integrify({ config: { db, functions } });
 

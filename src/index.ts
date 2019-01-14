@@ -17,8 +17,8 @@ interface Rule {
 
 export interface Config {
   config: {
-    db: any;
-    functions: any;
+    db: FirebaseFirestore.Firestore;
+    functions: typeof import('firebase-functions');
   };
 }
 
@@ -26,6 +26,8 @@ const config: Config = {
   config: { db: null, functions: null },
 };
 
+export function integrify(config: Config): null;
+export function integrify(rule: ReplicateAttributesRule): any;
 export function integrify(ruleOrConfig: Rule | Config) {
   if (isRule(ruleOrConfig)) {
     if (isReplicateAttributesRule(ruleOrConfig)) {
@@ -76,7 +78,7 @@ function integrifyReplicateAttributes(rule: ReplicateAttributesRule) {
       }
 
       // Loop over each target specification to replicate atributes
-      const masterId = context.masterId;
+      const masterId = context.params.masterId;
       const db = config.config.db;
       const promises = [];
       rule.targets.forEach(target => {
