@@ -31,3 +31,16 @@ module.exports.replicateMasterToDetail = integrify({
     },
   ],
 });
+
+module.exports.deleteReferencesToMaster = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'masterId',
+    },
+  ],
+});

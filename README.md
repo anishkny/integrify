@@ -23,18 +23,6 @@ module.exports = {
     ],
   }),
 
-  countNumberOfFavorites: integrify({
-    rule: 'MAINTAIN_COUNT',
-    source: {
-      collection: 'favorites',
-      foreignKey: 'articleId',
-    },
-    target: {
-      collection: 'articles',
-      attribute: 'favoritesCount',
-    },
-  }),
-
   deleteReferencesToMaster: integrify({
     rule: 'DELETE_REFERENCES',
     source: {
@@ -46,6 +34,18 @@ module.exports = {
         foreignKey: 'masterId',
       },
     ],
+  }),
+
+  countNumberOfFavorites: integrify({
+    rule: 'MAINTAIN_COUNT',
+    source: {
+      collection: 'favorites',
+      foreignKey: 'articleId',
+    },
+    target: {
+      collection: 'articles',
+      attribute: 'favoritesCount',
+    },
   }),
 };
 ```

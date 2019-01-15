@@ -6,12 +6,12 @@ const admin = require('firebase-admin');
 admin.initializeApp(...getFirebaseCredentials());
 const db = admin.firestore();
 
-test('basic require', t => {
+test('test require', t => {
   t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
   t.truthy(sut.replicateMasterToDetail.run);
 });
 
-test('online mode', async t => {
+test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
   // Add a couple of detail documents to follow master
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
@@ -48,7 +48,28 @@ test('online mode', async t => {
   t.pass();
 });
 
-async function getQuerySnapshot(collection, where) {
+test('test DELETE_REFERENCES (online mode)', async t => {
+  // Create some docs referencing master doc
+  const masterId = makeid();
+  const detailRef = await db.collection('detail1').add({ masterId: masterId });
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
+  const wrapped = fft.wrap(sut.deleteReferencesToMaster);
+  await wrapped(snap, { params: { masterId: masterId } });
+
+  // Assert referencing docs were deleted
+  const result = await getQuerySnapshot(
+    'detail1',
+    ['masterId', '==', masterId],
+    true
+  );
+  t.is(result.length, 0);
+
+  t.pass();
+});
+
+async function getQuerySnapshot(collection, where, expectZeroResults = false) {
   let querySnap = null;
   const docs = [];
   for (let i = 0; i < 10; ++i) {
@@ -56,7 +77,10 @@ async function getQuerySnapshot(collection, where) {
       .collection(collection)
       .where(...where)
       .get();
-    if (querySnap.size) {
+    if (
+      (expectZeroResults && !querySnap.size) ||
+      (!expectZeroResults && querySnap.size)
+    ) {
       return querySnap.docs;
     }
     await sleep(1000);
