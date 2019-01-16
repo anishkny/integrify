@@ -70,6 +70,37 @@ test('test DELETE_REFERENCES (online mode)', async t => {
   t.pass();
 });
 
+test.only('test MAINTAIN_COUNT (online mode)', async t => {
+  const articleId = makeid();
+  const favoriteId = makeid();
+  const snap = fft.firestore.makeDocumentSnapshot(
+    { articleId: articleId },
+    `favorites/${favoriteId}`
+  );
+
+  // Favorite the article a few times
+  const NUM_TIMES_TO_FAVORITE = 10;
+  const wrappedIncrement = fft.wrap(sut.incrementFavoritesCount);
+  const promises = [];
+  for (let i = 1; i <= NUM_TIMES_TO_FAVORITE; ++i) {
+    promises.push(wrappedIncrement(snap));
+    await sleep(500);
+  }
+
+  // Unfavorite the article a few times
+  const NUM_TIMES_TO_UNFAVORITE = 7;
+  const wrappedDecrement = fft.wrap(sut.decrementFavoritesCount);
+  for (let i = 1; i <= NUM_TIMES_TO_UNFAVORITE; ++i) {
+    promises.push(wrappedDecrement(snap));
+    await sleep(500);
+  }
+  await Promise.all(promises);
+
+  // TODO: Assert article has ecpected number of favoritesCount
+
+  t.pass();
+});
+
 async function getQuerySnapshot(collection, where, expectZeroResults = false) {
   let querySnap = null;
   const docs = [];
@@ -79,8 +110,8 @@ async function getQuerySnapshot(collection, where, expectZeroResults = false) {
       .where(...where)
       .get();
     if (
-      (expectZeroResults && !querySnap.size) ||
-      (!expectZeroResults && querySnap.size)
+      (expectZeroResults && querySnap.size === 0) ||
+      (!expectZeroResults && querySnap.size > 0)
     ) {
       return querySnap.docs;
     }

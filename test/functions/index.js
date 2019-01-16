@@ -45,3 +45,18 @@ module.exports.deleteReferencesToMaster = integrify({
     },
   ],
 });
+
+[
+  module.exports.incrementFavoritesCount,
+  module.exports.decrementFavoritesCount,
+] = integrify({
+  rule: 'MAINTAIN_COUNT',
+  source: {
+    collection: 'favorites',
+    foreignKey: 'articleId',
+  },
+  target: {
+    collection: 'articles',
+    attribute: 'favoritesCount',
+  },
+});

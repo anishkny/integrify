@@ -5,18 +5,19 @@ import {
   isDeleteReferencesRule,
 } from './rules/deleteReferences';
 import {
+  integrifyMaintainCount,
+  isMaintainCountRule,
+  MaintainCountRule,
+} from './rules/maintainCount';
+import {
   integrifyReplicateAttributes,
   isReplicateAttributesRule,
   ReplicateAttributesRule,
 } from './rules/replicateAttributes';
 
-const currentConfig: Config = {
-  config: { db: null, functions: null },
-};
-
 export function integrify(config: Config): null;
 export function integrify(
-  rule: ReplicateAttributesRule | DeleteReferencesRule
+  rule: ReplicateAttributesRule | DeleteReferencesRule | MaintainCountRule
 ): any;
 export function integrify(ruleOrConfig: Rule | Config) {
   if (isConfig(ruleOrConfig)) {
@@ -26,13 +27,21 @@ export function integrify(ruleOrConfig: Rule | Config) {
       return integrifyReplicateAttributes(ruleOrConfig, currentConfig);
     } else if (isDeleteReferencesRule(ruleOrConfig)) {
       return integrifyDeleteReferences(ruleOrConfig, currentConfig);
+    } else if (isMaintainCountRule(ruleOrConfig)) {
+      return integrifyMaintainCount(ruleOrConfig, currentConfig);
     } else {
-      // TODO: Throw error
+      throw new Error(`Unknown rule: [${JSON.stringify(ruleOrConfig)}]`);
     }
   } else {
-    // TODO: Throw error
+    throw new Error(
+      `Input must be rule or config: [${JSON.stringify(ruleOrConfig)}]`
+    );
   }
 }
+
+const currentConfig: Config = {
+  config: { db: null, functions: null },
+};
 
 function setCurrentConfig(aConfig: Config) {
   currentConfig.config.db = aConfig.config.db;

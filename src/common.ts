@@ -1,5 +1,5 @@
 export interface Rule {
-  rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'TODO';
+  rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'MAINTAIN_COUNT';
 }
 
 export interface Config {
