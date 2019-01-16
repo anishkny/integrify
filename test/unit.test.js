@@ -1,3 +1,4 @@
+const { getFirebaseCredentials, makeid, sleep } = require('./util');
 const fft = require('firebase-functions-test')(...getFirebaseCredentials());
 const sut = require('./functions');
 const test = require('ava');
@@ -85,22 +86,4 @@ async function getQuerySnapshot(collection, where, expectZeroResults = false) {
     }
     await sleep(1000);
   }
-}
-
-function getFirebaseCredentials() {
-  const serviceAccountKeyFile = `${__dirname}/service-account-key.json`;
-  return [
-    { projectId: require(serviceAccountKeyFile).project_id },
-    serviceAccountKeyFile,
-  ];
-}
-
-function makeid() {
-  return Math.random()
-    .toString(36)
-    .substr(2);
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }

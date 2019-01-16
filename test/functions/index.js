@@ -1,9 +1,10 @@
+const { integrify } = require('./lib');
+
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 db.settings({ timestampsInSnapshots: true });
-const { integrify } = require('./integrify');
 
 integrify({ config: { db, functions } });
 

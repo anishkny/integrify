@@ -6,5 +6,5 @@ export SCRIPTDIR="$( cd "$( dirname "$0" )" && pwd )"
 cd $SCRIPTDIR
 pwd
 
-cp ../lib/index.js functions/integrify.js
+cp -r ../lib functions/
 ava --verbose --fail-fast --serial *.test.js
