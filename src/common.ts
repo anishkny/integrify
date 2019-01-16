@@ -8,3 +8,11 @@ export interface Config {
     functions: typeof import('firebase-functions');
   };
 }
+
+export function isRule(arg: Rule | Config): arg is Rule {
+  return (arg as Rule).rule !== undefined;
+}
+
+export function isConfig(arg: Rule | Config): arg is Config {
+  return (arg as Config).config !== undefined;
+}
