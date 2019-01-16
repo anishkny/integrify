@@ -7,4 +7,4 @@ cd $SCRIPTDIR
 pwd
 
 cp -r ../lib functions/
-ava --verbose --fail-fast --serial *.test.js
+ava --verbose --fail-fast --serial --timeout 30s *.test.js

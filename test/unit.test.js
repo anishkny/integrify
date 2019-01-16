@@ -6,6 +6,13 @@ const test = require('ava');
 const admin = require('firebase-admin');
 admin.initializeApp(...getFirebaseCredentials());
 const db = admin.firestore();
+let unsubscribe = null;
+
+test.after(() => {
+  if (unsubscribe) {
+    unsubscribe();
+  }
+});
 
 test('test require', t => {
   t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
@@ -32,20 +39,21 @@ test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
   await wrapped(change, { params: { masterId: masterId } });
 
   // Assert that attributes get replicated to detail documents
-  await sleep(5000);
-  const result1 = await getQuerySnapshot('detail1', [
-    'masterId',
-    '==',
-    masterId,
-  ]);
-  t.is(result1[0].get('detail1Field1'), 'after1');
-  const result2 = await getQuerySnapshot('detail2', [
-    'masterId',
-    '==',
-    masterId,
-  ]);
-  t.is(result2[0].get('detail2Field1'), 'after1');
-  t.is(result2[0].get('detail2Field3'), 'after3');
+  await assertQuerySizeEventually(
+    db
+      .collection('detail1')
+      .where('masterId', '==', masterId)
+      .where('detail1Field1', '==', 'after1'),
+    1
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('detail2')
+      .where('masterId', '==', masterId)
+      .where('detail2Field3', '==', 'after3'),
+    1
+  );
+
   t.pass();
 });
 
@@ -60,17 +68,15 @@ test('test DELETE_REFERENCES (online mode)', async t => {
   await wrapped(snap, { params: { masterId: masterId } });
 
   // Assert referencing docs were deleted
-  const result = await getQuerySnapshot(
-    'detail1',
-    ['masterId', '==', masterId],
-    true
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('masterId', '==', masterId),
+    0
   );
-  t.is(result.length, 0);
 
   t.pass();
 });
 
-test.only('test MAINTAIN_COUNT (online mode)', async t => {
+test('test MAINTAIN_COUNT (online mode)', async t => {
   const articleId = makeid();
   const favoriteId = makeid();
   const snap = fft.firestore.makeDocumentSnapshot(
@@ -96,25 +102,57 @@ test.only('test MAINTAIN_COUNT (online mode)', async t => {
   }
   await Promise.all(promises);
 
-  // TODO: Assert article has ecpected number of favoritesCount
+  // Assert article has expected number of favoritesCount
+  await assertDocumentValueEventually(
+    db.collection('articles').doc(articleId),
+    'favoritesCount',
+    NUM_TIMES_TO_FAVORITE - NUM_TIMES_TO_UNFAVORITE
+  );
 
   t.pass();
 });
 
-async function getQuerySnapshot(collection, where, expectZeroResults = false) {
-  let querySnap = null;
-  const docs = [];
-  for (let i = 0; i < 10; ++i) {
-    querySnap = await db
-      .collection(collection)
-      .where(...where)
-      .get();
-    if (
-      (expectZeroResults && querySnap.size === 0) ||
-      (!expectZeroResults && querySnap.size > 0)
-    ) {
-      return querySnap.docs;
-    }
-    await sleep(1000);
-  }
+async function assertDocumentValueEventually(
+  docRef,
+  fieldPath,
+  expectedValue,
+  log = console.log
+) {
+  log(
+    `Asserting doc [${
+      docRef.path
+    }] field [${fieldPath}] has value [${expectedValue}] ... `
+  );
+  await new Promise(res => {
+    unsubscribe = docRef.onSnapshot(snap => {
+      if (snap.exists) {
+        const newValue = snap.get(fieldPath);
+        log(`Current value: [${newValue.toString()}] `);
+        if (newValue === expectedValue) {
+          log('Matched!');
+          unsubscribe();
+          res();
+        }
+      }
+    });
+  });
+}
+
+async function assertQuerySizeEventually(
+  query,
+  expectedResultSize,
+  log = console.log
+) {
+  log(`Asserting query result to have [${expectedResultSize}] entries ... `);
+  const docs = await new Promise(res => {
+    unsubscribe = query.onSnapshot(snap => {
+      log(`Current result size: [${snap.size}]`);
+      if (snap.size === expectedResultSize) {
+        log('Matched!');
+        unsubscribe();
+        res(snap.docs);
+      }
+    });
+  });
+  return docs;
 }

@@ -53,11 +53,9 @@ export function integrifyMaintainCount(
       if (!oldCount) {
         oldCount = 0;
       }
-      console.log(`oldCount = [${oldCount}]`);
       const newCount = oldCount + delta;
       const update = {};
       update[rule.target.attribute] = newCount;
-      console.log('update =', update);
       console.log(
         `integrify: Applying ${toString(delta).toLowerCase()} to [${
           rule.target.collection
