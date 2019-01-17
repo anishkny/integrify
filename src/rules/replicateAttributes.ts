@@ -42,6 +42,14 @@ export function integrifyReplicateAttributes(
     });
   });
 
+  // Create map of master attributes to track for replication
+  const trackedMasterAttributes = {};
+  rule.targets.forEach(target => {
+    Object.keys(target.attributeMapping).forEach(masterAttribute => {
+      trackedMasterAttributes[masterAttribute] = true;
+    });
+  });
+
   return functions.firestore
     .document(`${rule.source.collection}/{masterId}`)
     .onUpdate((change, context) => {
@@ -55,12 +63,6 @@ export function integrifyReplicateAttributes(
       );
 
       // Check if atleast one of the attributes to be replicated was changed
-      const trackedMasterAttributes = {};
-      rule.targets.forEach(target => {
-        Object.keys(target.attributeMapping).forEach(masterAttribute => {
-          trackedMasterAttributes[masterAttribute] = true;
-        });
-      });
       let relevantUpdate = false;
       Object.keys(newValue).forEach(changedAttribute => {
         if (trackedMasterAttributes[changedAttribute]) {
