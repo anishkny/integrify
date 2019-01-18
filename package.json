@@ -9,6 +9,11 @@
     "integrity",
     "functions"
   ],
+  "homepage": "https://github.com/anishkny/integrify",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anishkny/integrify.git"
+  },
   "license": "MIT",
   "author": {
     "name": "Anish Karandikar",
