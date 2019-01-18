@@ -1,8 +1,24 @@
 {
   "name": "integrify",
-  "version": "0.0.2",
+  "version": "0.0.3",
+  "description": "Enforce referential integrity in Firestore using Cloud Functions",
+  "keywords": [
+    "firebase",
+    "firestore",
+    "referential",
+    "integrity",
+    "functions"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Anish Karandikar",
+    "url": "https://github.com/anishkny"
+  },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "lint": "tslint --project ./tsconfig.json",
     "build": "npm run lint && tsc",

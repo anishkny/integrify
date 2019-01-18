@@ -1,5 +1,7 @@
 # Integrify
 
+_Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)_
+
 ## Usage
 
 ```js
