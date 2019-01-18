@@ -1,5 +1,7 @@
 # Integrify
 
+[![Build Status](https://dev.azure.com/anishkarandikar/integrify/_apis/build/status/anishkny.integrify?branchName=master)](https://dev.azure.com/anishkarandikar/integrify/_build/latest?definitionId=12&branchName=master)
+
 _Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)_
 
 ## Usage
