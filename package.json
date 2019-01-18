@@ -36,6 +36,7 @@
     "firebase-functions-test": "^0.1.6",
     "firebase-tools": "^6.2.2",
     "prettier": "^1.15.3",
+    "standard-version": "^4.4.0",
     "tslint": "^5.12.1",
     "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.2.2"
