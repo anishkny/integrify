@@ -142,6 +142,7 @@ async function assertDocumentValueEventually(
       docRef.path
     }] field [${fieldPath}] has value [${expectedValue}] ... `
   );
+  await sleep(1000);
   await new Promise(res => {
     unsubscribe = docRef.onSnapshot(snap => {
       if (snap.exists) {
@@ -163,6 +164,7 @@ async function assertQuerySizeEventually(
   log = console.log
 ) {
   log(`Asserting query result to have [${expectedResultSize}] entries ... `);
+  await sleep(1000);
   const docs = await new Promise(res => {
     unsubscribe = query.onSnapshot(snap => {
       log(`Current result size: [${snap.size}]`);
