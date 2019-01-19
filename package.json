@@ -1,6 +1,6 @@
 {
   "name": "integrify",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Enforce referential integrity in Firestore using Cloud Functions",
   "keywords": [
     "firebase",
