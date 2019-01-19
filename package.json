@@ -44,5 +44,8 @@
   "peerDependencies": {
     "firebase-admin": "^6.5.0",
     "firebase-functions": "^2.1.0"
+  },
+  "optionalDependencies": {
+    "coveralls": "^3.0.2"
   }
 }

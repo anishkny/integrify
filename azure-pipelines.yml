@@ -13,12 +13,8 @@ steps:
   - script: |
       npm install
       npm test
-    displayName: 'npm install and test'
+      cat coverage/lcov.info | npx coveralls
+    displayName: 'Run Tests'
     env:
       SERVICE_ACCOUNT_KEY_BASE64: $(SERVICE_ACCOUNT_KEY_BASE64)
-
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: cobertura
-      summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml
-      reportDirectory: $(System.DefaultWorkingDirectory)/coverage/
+      COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN)
