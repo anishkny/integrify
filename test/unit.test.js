@@ -113,14 +113,18 @@ test.only('test MAINTAIN_COUNT (online mode)', async t => {
     NUM_TIMES_TO_FAVORITE - NUM_TIMES_TO_UNFAVORITE
   );
 
-  // Delete article and ensure favoritesCount is not updated
+  // Delete article and ensure favoritesCount is not updated on decrement
   await db
     .collection('articles')
     .doc(articleId)
     .delete();
   await wrappedDecrement(snap);
-
-  // TODO: Assert article does not get created again
+  await assertQuerySizeEventually(
+    db
+      .collection('articles')
+      .where(admin.firestore.FieldPath.documentId(), '==', articleId),
+    0
+  );
 
   t.pass();
 });
