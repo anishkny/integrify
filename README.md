@@ -1,8 +1,10 @@
 # Integrify
 
-[![Build Status](https://dev.azure.com/anishkarandikar/integrify/_apis/build/status/anishkny.integrify?branchName=master)](https://dev.azure.com/anishkarandikar/integrify/_build/latest?definitionId=12&branchName=master)
-
 _Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)_
+
+[![Build Status](https://dev.azure.com/anishkarandikar/integrify/_apis/build/status/anishkny.integrify?branchName=master)](https://dev.azure.com/anishkarandikar/integrify/_build/latest?definitionId=12&branchName=master)
+[![npm package](https://img.shields.io/npm/v/integrify.svg)](https://www.npmjs.com/package/integrify)
+
 
 ## Usage
 
@@ -16,6 +18,7 @@ const db = admin.firestore();
 
 integrify({ config: { functions, db } });
 
+// Automatically replicate attributes from source to target
 module.exports.replicateMasterToDetail = integrify({
   rule: 'REPLICATE_ATTRIBUTES',
   source: {
@@ -41,6 +44,7 @@ module.exports.replicateMasterToDetail = integrify({
   ],
 });
 
+// Automatically delete stale references
 module.exports.deleteReferencesToMaster = integrify({
   rule: 'DELETE_REFERENCES',
   source: {
@@ -54,6 +58,7 @@ module.exports.deleteReferencesToMaster = integrify({
   ],
 });
 
+// Automatically maintain count
 [
   module.exports.incrementFavoritesCount,
   module.exports.decrementFavoritesCount,
