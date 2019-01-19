@@ -76,7 +76,7 @@ test('test DELETE_REFERENCES (online mode)', async t => {
   t.pass();
 });
 
-test.only('test MAINTAIN_COUNT (online mode)', async t => {
+test('test MAINTAIN_COUNT (online mode)', async t => {
   // Create an article to be favorited
   const articleId = makeid();
   await db
@@ -113,12 +113,14 @@ test.only('test MAINTAIN_COUNT (online mode)', async t => {
     NUM_TIMES_TO_FAVORITE - NUM_TIMES_TO_UNFAVORITE
   );
 
-  // Delete article and ensure favoritesCount is not updated on decrement
+  // Delete article and ensure favoritesCount is not updated on decrement or
+  // increment
   await db
     .collection('articles')
     .doc(articleId)
     .delete();
   await wrappedDecrement(snap);
+  await wrappedIncrement(snap);
   await assertQuerySizeEventually(
     db
       .collection('articles')
