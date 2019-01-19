@@ -1,10 +1,10 @@
 # 𝚒𝚗𝚝𝚎𝚐𝚛𝚒𝚏𝚢
 
-🤝 Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)
-
-[![Build Status](https://dev.azure.com/anishkarandikar/integrify/_apis/build/status/anishkny.integrify?branchName=master)](https://dev.azure.com/anishkarandikar/integrify/_build/latest?definitionId=12&branchName=master)
+[![Build Status](https://travis-ci.com/anishkny/integrify.svg?branch=master)](https://travis-ci.com/anishkny/integrify)
+[![Coverage Status](https://coveralls.io/repos/github/anishkny/integrify/badge.svg?branch=master)](https://coveralls.io/github/anishkny/integrify?branch=master)
 [![npm package](https://img.shields.io/npm/v/integrify.svg)](https://www.npmjs.com/package/integrify)
 
+🤝 Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)
 
 ## Usage
 
