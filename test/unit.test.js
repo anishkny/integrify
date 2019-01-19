@@ -77,17 +77,21 @@ test('test DELETE_REFERENCES (online mode)', async t => {
 });
 
 test('test MAINTAIN_COUNT (online mode)', async t => {
+  // Create an article to be favorited
   const articleId = makeid();
-  const favoriteId = makeid();
-  const snap = fft.firestore.makeDocumentSnapshot(
-    { articleId: articleId },
-    `favorites/${favoriteId}`
-  );
+  await db
+    .collection('articles')
+    .doc(articleId)
+    .set({ favoritesCount: 0 });
 
   // Favorite the article a few times
   const NUM_TIMES_TO_FAVORITE = 10;
   const wrappedIncrement = fft.wrap(sut.incrementFavoritesCount);
   const promises = [];
+  const snap = fft.firestore.makeDocumentSnapshot(
+    { articleId: articleId },
+    `favorites/${makeid()}`
+  );
   for (let i = 1; i <= NUM_TIMES_TO_FAVORITE; ++i) {
     promises.push(wrappedIncrement(snap));
     await sleep(500);
@@ -109,6 +113,21 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
     NUM_TIMES_TO_FAVORITE - NUM_TIMES_TO_UNFAVORITE
   );
 
+  // Delete article and ensure favoritesCount is not updated on decrement or
+  // increment
+  await db
+    .collection('articles')
+    .doc(articleId)
+    .delete();
+  await wrappedDecrement(snap);
+  await wrappedIncrement(snap);
+  await assertQuerySizeEventually(
+    db
+      .collection('articles')
+      .where(admin.firestore.FieldPath.documentId(), '==', articleId),
+    0
+  );
+
   t.pass();
 });
 
@@ -123,6 +142,7 @@ async function assertDocumentValueEventually(
       docRef.path
     }] field [${fieldPath}] has value [${expectedValue}] ... `
   );
+  await sleep(1000);
   await new Promise(res => {
     unsubscribe = docRef.onSnapshot(snap => {
       if (snap.exists) {
@@ -144,6 +164,7 @@ async function assertQuerySizeEventually(
   log = console.log
 ) {
   log(`Asserting query result to have [${expectedResultSize}] entries ... `);
+  await sleep(1000);
   const docs = await new Promise(res => {
     unsubscribe = query.onSnapshot(snap => {
       log(`Current result size: [${snap.size}]`);
