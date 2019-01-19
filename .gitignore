@@ -2,4 +2,6 @@ node_modules
 lib
 test/service-account-key.json
 test/functions/integrify.js
+.nyc_output
+coverage
 .vscode
