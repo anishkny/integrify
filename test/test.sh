@@ -13,4 +13,4 @@ cd ..
 
 rm -rf ../.nyc_output ../coverage
 
-npx nyc --reporter=lcov --reporter=html --reporter=text ava --verbose --fail-fast --serial --timeout 30s *.test.js
+npx nyc -r html -r text -r cobertura ava --verbose --fail-fast --serial --timeout 30s *.test.js

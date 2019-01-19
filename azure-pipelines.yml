@@ -16,3 +16,9 @@ steps:
     displayName: 'npm install and test'
     env:
       SERVICE_ACCOUNT_KEY_BASE64: $(SERVICE_ACCOUNT_KEY_BASE64)
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: cobertura
+      summaryFileLocation: coverage/cobertura-coverage.xml
+      reportDirectory: coverage/
