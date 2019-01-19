@@ -76,18 +76,22 @@ test('test DELETE_REFERENCES (online mode)', async t => {
   t.pass();
 });
 
-test('test MAINTAIN_COUNT (online mode)', async t => {
+test.only('test MAINTAIN_COUNT (online mode)', async t => {
+  // Create an article to be favorited
   const articleId = makeid();
-  const favoriteId = makeid();
-  const snap = fft.firestore.makeDocumentSnapshot(
-    { articleId: articleId },
-    `favorites/${favoriteId}`
-  );
+  await db
+    .collection('articles')
+    .doc(articleId)
+    .set({ favoritesCount: 0 });
 
   // Favorite the article a few times
   const NUM_TIMES_TO_FAVORITE = 10;
   const wrappedIncrement = fft.wrap(sut.incrementFavoritesCount);
   const promises = [];
+  const snap = fft.firestore.makeDocumentSnapshot(
+    { articleId: articleId },
+    `favorites/${makeid()}`
+  );
   for (let i = 1; i <= NUM_TIMES_TO_FAVORITE; ++i) {
     promises.push(wrappedIncrement(snap));
     await sleep(500);
@@ -108,6 +112,15 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
     'favoritesCount',
     NUM_TIMES_TO_FAVORITE - NUM_TIMES_TO_UNFAVORITE
   );
+
+  // Delete article and ensure favoritesCount is not updated
+  await db
+    .collection('articles')
+    .doc(articleId)
+    .delete();
+  await wrappedDecrement(snap);
+
+  // TODO: Assert article does not get created again
 
   t.pass();
 });

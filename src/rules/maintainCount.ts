@@ -49,7 +49,19 @@ export function integrifyMaintainCount(
     const targetId = snap.get(rule.source.foreignKey);
     return db.runTransaction(async trans => {
       const targetRef = db.collection(rule.target.collection).doc(targetId);
-      let oldCount = (await trans.get(targetRef)).get(rule.target.attribute);
+      const targetSnap = await trans.get(targetRef);
+
+      // No-op if target does not exist
+      if (!targetSnap.exists) {
+        console.log(
+          `integrify: WARNING: Target document does not exist in [${
+            rule.target.collection
+          }], id [${targetId}]`
+        );
+        return;
+      }
+
+      let oldCount = targetSnap.get(rule.target.attribute);
       if (!oldCount) {
         oldCount = 0;
       }
