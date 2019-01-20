@@ -89,7 +89,7 @@ const enum Delta {
 function toString(delta: Delta): string {
   if (delta === Delta.Increment) {
     return 'Increment';
-  } else if (delta === Delta.Decrement) {
+  } else {
     return 'Decrement';
   }
 }
