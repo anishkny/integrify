@@ -2,6 +2,7 @@ const { getFirebaseCredentials, makeid, sleep } = require('./util');
 const fft = require('firebase-functions-test')(...getFirebaseCredentials());
 const sut = require('./functions');
 const test = require('ava');
+const { integrify } = require('./functions/lib');
 
 const admin = require('firebase-admin');
 admin.initializeApp(...getFirebaseCredentials());
@@ -54,7 +55,15 @@ test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
     1
   );
 
-  t.pass();
+  // Assert irrelevant update is safely ignored
+  const irrelevantAfterSnap = fft.firestore.makeDocumentSnapshot(
+    { masterFieldIrrelevant: 'whatever' },
+    `master/${masterId}`
+  );
+  const irreleventChange = fft.makeChange(beforeSnap, irrelevantAfterSnap);
+  await wrapped(irreleventChange, { params: { masterId: masterId } });
+
+  await t.pass();
 });
 
 test('test DELETE_REFERENCES (online mode)', async t => {
@@ -126,6 +135,18 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
       .collection('articles')
       .where(admin.firestore.FieldPath.documentId(), '==', articleId),
     0
+  );
+
+  t.pass();
+});
+
+test('test error conditions', async t => {
+  t.throws(() => integrify(), TypeError, /Cannot read property.*of undefined/i);
+  t.throws(() => integrify({}), Error, /Input must be rule or config/i);
+  t.throws(
+    () => integrify({ rule: 'UNKNOWN_RULE_4a4e261a2e37' }),
+    Error,
+    /Unknown rule/i
   );
 
   t.pass();
