@@ -4,7 +4,8 @@
     "outDir": "lib",
     "declaration": true,
     "target": "es5",
-    "lib": ["es5", "es2015.promise"]
+    "lib": ["es5", "es2015.promise"],
+    "inlineSourceMap": true
   },
   "include": ["src"]
 }

@@ -6,5 +6,11 @@ export SCRIPTDIR="$( cd "$( dirname "$0" )" && pwd )"
 cd $SCRIPTDIR
 pwd
 
-cp -r ../lib functions/
-ava --verbose --fail-fast --serial --timeout 30s *.test.js
+cd functions
+rm -f lib
+ln -s ../../lib/
+cd ..
+
+rm -rf ../.nyc_output ../coverage
+
+npx nyc -r html -r text -r lcov ava --verbose --fail-fast --serial --timeout 30s *.test.js

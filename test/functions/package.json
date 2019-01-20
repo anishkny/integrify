@@ -8,5 +8,8 @@
   },
   "engines": {
     "node": "8"
+  },
+  "devDependencies": {
+    "firebase-tools": "^6.3.0"
   }
 }
