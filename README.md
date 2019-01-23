@@ -8,6 +8,8 @@
 
 🤝 Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)
 
+[Introductory blog post](https://dev.to/anishkny/---firestore-referential-integrity-via-triggers-kpb)
+
 ## Usage
 
 ```js
