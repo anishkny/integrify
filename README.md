@@ -5,6 +5,7 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/anishkny/integrify.svg)](https://greenkeeper.io/)
 [![Known Vulnerabilities](https://snyk.io/test/github/anishkny/integrify/badge.svg?targetFile=package.json)](https://snyk.io/test/github/anishkny/integrify?targetFile=package.json)
 [![npm package](https://img.shields.io/npm/v/integrify.svg)](https://www.npmjs.com/package/integrify)
+[![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
 
 🤝 Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)
 
