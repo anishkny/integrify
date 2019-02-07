@@ -47,6 +47,14 @@ module.exports.replicateMasterToDetail = integrify({
       },
     },
   ],
+
+  // Optional:
+  hooks: {
+    pre: (change, context) => {
+      // Code to execute before replicating attributes
+      // See: https://firebase.google.com/docs/functions/firestore-events
+    },
+  },
 });
 
 // Automatically delete stale references
