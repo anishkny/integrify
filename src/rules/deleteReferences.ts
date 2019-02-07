@@ -8,6 +8,9 @@ export interface DeleteReferencesRule extends Rule {
     collection: string;
     foreignKey: string;
   }>;
+  hooks?: {
+    pre?: Function;
+  };
 }
 
 export function isDeleteReferencesRule(arg: Rule): arg is DeleteReferencesRule {
@@ -38,9 +41,15 @@ export function integrifyDeleteReferences(
         }], id [${masterId}]`
       );
 
+      // Call "pre" hook if defined
+      const promises = [];
+      if (rule.hooks && rule.hooks.pre) {
+        promises.push(rule.hooks.pre(snap, context));
+        console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
+      }
+
       // Loop over each target
       const db = config.config.db;
-      const promises = [];
       rule.targets.forEach(target => {
         console.log(
           `integrify: Deleting all docs in [${

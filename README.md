@@ -69,6 +69,14 @@ module.exports.deleteReferencesToMaster = integrify({
       foreignKey: 'masterId',
     },
   ],
+
+  // Optional:
+  hooks: {
+    pre: (snap, context) => {
+      // Code to execute before deleting references
+      // See: https://firebase.google.com/docs/functions/firestore-events
+    },
+  },
 });
 
 // Automatically maintain count

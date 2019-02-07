@@ -77,12 +77,19 @@ test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
 test('test DELETE_REFERENCES (online mode)', async t => {
   // Create some docs referencing master doc
   const masterId = makeid();
-  const detailRef = await db.collection('detail1').add({ masterId: masterId });
+  await db.collection('detail1').add({ masterId: masterId });
 
   // Trigger function to delete references
   const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
   const wrapped = fft.wrap(sut.deleteReferencesToMaster);
+  setState({ snap: null, context: null });
   await wrapped(snap, { params: { masterId: masterId } });
+
+  // Assert pre-hook was called
+  const state = getState();
+  t.truthy(state.snap);
+  t.truthy(state.context);
+  t.is(state.context.params.masterId, masterId);
 
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
