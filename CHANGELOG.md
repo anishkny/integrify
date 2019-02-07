@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/anishkny/integrify/compare/v1.0.3...v1.1.0) (2019-02-07)
+
+
+### Features
+
+* **replicateAttributes:** Add pre-hook ([#7](https://github.com/anishkny/integrify/issues/7)) ([903cc6a](https://github.com/anishkny/integrify/commit/903cc6a))
+
+
+
 <a name="1.0.3"></a>
 ## [1.0.3](https://github.com/anishkny/integrify/compare/v1.0.2...v1.0.3) (2019-01-20)
 
