@@ -50,6 +50,11 @@ module.exports.deleteReferencesToMaster = integrify({
       foreignKey: 'masterId',
     },
   ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({ snap, context });
+    },
+  },
 });
 
 [
