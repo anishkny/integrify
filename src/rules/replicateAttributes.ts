@@ -11,6 +11,9 @@ export interface ReplicateAttributesRule extends Rule {
       [sourceAttribute: string]: string;
     };
   }>;
+  hooks?: {
+    pre?: Function;
+  };
 }
 
 export function isReplicateAttributesRule(
@@ -62,6 +65,12 @@ export function integrifyReplicateAttributes(
         newValue
       );
 
+      // Call "pre" hook if defined
+      const promises = [];
+      if (rule.hooks && rule.hooks.pre) {
+        promises.push(rule.hooks.pre(change, context));
+      }
+
       // Check if atleast one of the attributes to be replicated was changed
       let relevantUpdate = false;
       Object.keys(newValue).forEach(changedAttribute => {
@@ -79,7 +88,6 @@ export function integrifyReplicateAttributes(
 
       // Loop over each target specification to replicate atributes
       const db = config.config.db;
-      const promises = [];
       rule.targets.forEach(target => {
         const targetCollection = target.collection;
         const update = {};

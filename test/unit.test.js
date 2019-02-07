@@ -39,6 +39,8 @@ test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
   const wrapped = fft.wrap(sut.replicateMasterToDetail);
   await wrapped(change, { params: { masterId: masterId } });
 
+  // TODO: Assert pre-hook was called
+
   // Assert that attributes get replicated to detail documents
   await assertQuerySizeEventually(
     db

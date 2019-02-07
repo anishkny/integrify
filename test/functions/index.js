@@ -31,6 +31,11 @@ module.exports.replicateMasterToDetail = integrify({
       },
     },
   ],
+  hooks: {
+    pre: (change, context) => {
+      console.log(change, context);
+    },
+  },
 });
 
 module.exports.deleteReferencesToMaster = integrify({
