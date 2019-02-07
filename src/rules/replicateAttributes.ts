@@ -69,6 +69,7 @@ export function integrifyReplicateAttributes(
       const promises = [];
       if (rule.hooks && rule.hooks.pre) {
         promises.push(rule.hooks.pre(change, context));
+        console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
       }
 
       // Check if atleast one of the attributes to be replicated was changed
