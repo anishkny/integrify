@@ -1,4 +1,5 @@
 const { integrify } = require('./lib');
+const { setState } = require('./stateMachine');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
@@ -31,6 +32,11 @@ module.exports.replicateMasterToDetail = integrify({
       },
     },
   ],
+  hooks: {
+    pre: (change, context) => {
+      setState({ change, context });
+    },
+  },
 });
 
 module.exports.deleteReferencesToMaster = integrify({

@@ -3,6 +3,7 @@ const fft = require('firebase-functions-test')(...getFirebaseCredentials());
 const sut = require('./functions');
 const test = require('ava');
 const { integrify } = require('./functions/lib');
+const { getState, setState } = require('./functions/stateMachine');
 
 const admin = require('firebase-admin');
 admin.initializeApp(...getFirebaseCredentials());
@@ -37,7 +38,14 @@ test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
   );
   const change = fft.makeChange(beforeSnap, afterSnap);
   const wrapped = fft.wrap(sut.replicateMasterToDetail);
+  setState({ change: null, context: null });
   await wrapped(change, { params: { masterId: masterId } });
+
+  // Assert pre-hook was called
+  const state = getState();
+  t.truthy(state.change);
+  t.truthy(state.context);
+  t.is(state.context.params.masterId, masterId);
 
   // Assert that attributes get replicated to detail documents
   await assertQuerySizeEventually(
