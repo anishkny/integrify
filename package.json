@@ -34,7 +34,7 @@
     "firebase-admin": "^6.5.0",
     "firebase-functions": "^2.1.0",
     "firebase-functions-test": "^0.1.6",
-    "nyc": "^13.1.0",
+    "nyc": "^14.0.0",
     "prettier": "^1.15.3",
     "standard-version": "^5.0.0",
     "tslint": "^5.12.1",
