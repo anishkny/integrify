@@ -30,22 +30,22 @@
     "test": "npm run build && ./test/test.sh"
   },
   "devDependencies": {
-    "ava": "^1.1.0",
-    "firebase-admin": "^6.5.0",
-    "firebase-functions": "^2.1.0",
+    "ava": "^1.4.1",
+    "firebase-admin": "^7.3.0",
+    "firebase-functions": "^2.3.0",
     "firebase-functions-test": "^0.1.6",
-    "nyc": "^13.1.0",
-    "prettier": "^1.15.3",
-    "standard-version": "^5.0.0",
-    "tslint": "^5.12.1",
-    "tslint-config-prettier": "^1.17.0",
-    "typescript": "^3.2.2"
+    "nyc": "^14.0.0",
+    "prettier": "^1.17.0",
+    "standard-version": "^5.0.2",
+    "tslint": "^5.16.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.4.4"
   },
   "peerDependencies": {
-    "firebase-admin": "^6.5.0",
-    "firebase-functions": "^2.1.0"
+    "firebase-admin": "^7.3.0",
+    "firebase-functions": "^2.3.0"
   },
   "optionalDependencies": {
-    "coveralls": "^3.0.2"
+    "coveralls": "^3.0.3"
   }
 }
