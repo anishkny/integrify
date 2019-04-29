@@ -1,5 +1,6 @@
 export interface Rule {
   rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'MAINTAIN_COUNT';
+  name?: string;
 }
 
 export interface Config {

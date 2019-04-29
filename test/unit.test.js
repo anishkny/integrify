@@ -1,27 +1,43 @@
 const { getFirebaseCredentials, makeid, sleep } = require('./util');
 const fft = require('firebase-functions-test')(...getFirebaseCredentials());
-const sut = require('./functions');
 const test = require('ava');
 const { integrify } = require('../lib');
 const { getState, setState } = require('./functions/stateMachine');
 
+const sut = require('./functions');
 const admin = require('firebase-admin');
 admin.initializeApp(...getFirebaseCredentials());
 const db = admin.firestore();
-let unsubscribe = null;
-
-test.after(() => {
-  if (unsubscribe) {
-    unsubscribe();
-  }
-});
 
 test('test require', t => {
   t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
   t.truthy(sut.replicateMasterToDetail.run);
 });
 
-test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
+let unsubscribe = null;
+test.after(() => {
+  if (unsubscribe) {
+    unsubscribe();
+  }
+});
+
+const testsuites = [
+  ['config-in-file', require('./functions/zero-config.index')],
+  ['config-in-situ', require('./functions')],
+];
+
+testsuites.forEach(testsuite => {
+  const name = testsuite[0];
+  const thisSut = testsuite[1];
+  test(`test REPLICATE_ATTRIBUTES (${name})`, async t =>
+    testReplicateAttributes(thisSut, t));
+  test(`test DELETE_REFERENCES (${name})`, async t =>
+    testDeleteReferences(thisSut, t));
+  test(`test MAINTAIN_COUNT (${name})`, async t =>
+    testMaintainCount(thisSut, t));
+});
+
+async function testReplicateAttributes(sut, t) {
   // Add a couple of detail documents to follow master
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
@@ -72,9 +88,9 @@ test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
   await wrapped(irreleventChange, { params: { masterId: masterId } });
 
   await t.pass();
-});
+}
 
-test('test DELETE_REFERENCES (online mode)', async t => {
+async function testDeleteReferences(sut, t) {
   // Create some docs referencing master doc
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
@@ -98,9 +114,9 @@ test('test DELETE_REFERENCES (online mode)', async t => {
   );
 
   t.pass();
-});
+}
 
-test('test MAINTAIN_COUNT (online mode)', async t => {
+async function testMaintainCount(sut, t) {
   // Create an article to be favorited
   const articleId = makeid();
   await db
@@ -153,7 +169,7 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
   );
 
   t.pass();
-});
+}
 
 test('test error conditions', async t => {
   t.throws(() => integrify({}), Error, /Input must be rule or config/i);

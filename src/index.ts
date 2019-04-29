@@ -24,13 +24,21 @@ export function integrify(
 ): any;
 export function integrify(ruleOrConfig?: Rule | Config) {
   if (!ruleOrConfig) {
-    const configs = readConfigsFromFile();
+    const rules = readRulesFromFile();
     const functions = {};
-    configs.forEach(thisConfig => {
-      if (isReplicateAttributesRule(thisConfig)) {
-        functions[`replicate_${thisConfig.source.collection}`] = integrify(
-          thisConfig
-        );
+    rules.forEach(thisRule => {
+      if (
+        isReplicateAttributesRule(thisRule) ||
+        isDeleteReferencesRule(thisRule)
+      ) {
+        functions[thisRule.name] = integrify(thisRule);
+      } else if (isMaintainCountRule(thisRule)) {
+        [
+          functions[`increment${thisRule.name}`],
+          functions[`decrement${thisRule.name}`],
+        ] = integrify(thisRule);
+      } else {
+        throw new Error(`Unknown rule: [${JSON.stringify(thisRule)}]`);
       }
     });
     return functions;
@@ -55,10 +63,10 @@ export function integrify(ruleOrConfig?: Rule | Config) {
 }
 
 /**
- * readConfigsFromFile - Read array of `integrify` configurations from
+ * readRulesFromFile - Read array of `integrify` configurations from
  * `integrify.rules.js`
  */
-function readConfigsFromFile() {
+function readRulesFromFile() {
   const cp = callerPath();
   const rulesFile = `${dirname(cp)}${sep}integrify.rules.js`;
   if (!existsSync(rulesFile)) {

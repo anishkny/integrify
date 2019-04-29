@@ -1,6 +1,9 @@
+const { setState } = require('./stateMachine');
+
 module.exports = [
   {
     rule: 'REPLICATE_ATTRIBUTES',
+    name: 'replicateMasterToDetail',
     source: {
       collection: 'master',
     },
@@ -22,5 +25,40 @@ module.exports = [
         },
       },
     ],
+    hooks: {
+      pre: (change, context) => {
+        setState({ change, context });
+      },
+    },
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesToMaster',
+    source: {
+      collection: 'master',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'masterId',
+      },
+    ],
+    hooks: {
+      pre: (snap, context) => {
+        setState({ snap, context });
+      },
+    },
+  },
+  {
+    rule: 'MAINTAIN_COUNT',
+    name: 'FavoritesCount',
+    source: {
+      collection: 'favorites',
+      foreignKey: 'articleId',
+    },
+    target: {
+      collection: 'articles',
+      attribute: 'favoritesCount',
+    },
   },
 ];

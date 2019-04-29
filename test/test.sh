@@ -7,5 +7,4 @@ cd $SCRIPTDIR
 pwd
 rm -rf ../.nyc_output ../coverage
 
-# npx nyc -r html -r text -r lcov ava --verbose --fail-fast --serial --timeout 30s *.test.js
-npx nyc -r html -r text -r lcov ava --verbose --fail-fast --serial --timeout 30s zero-config.test.js
+npx nyc -r html -r text -r lcov ava --verbose --fail-fast --serial --timeout 30s *.test.js
