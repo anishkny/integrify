@@ -47,5 +47,8 @@
   },
   "optionalDependencies": {
     "coveralls": "^3.0.3"
+  },
+  "dependencies": {
+    "caller-path": "^2.0.0"
   }
 }

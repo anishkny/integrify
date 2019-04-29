@@ -2,7 +2,7 @@ const { getFirebaseCredentials, makeid, sleep } = require('./util');
 const fft = require('firebase-functions-test')(...getFirebaseCredentials());
 const sut = require('./functions');
 const test = require('ava');
-const { integrify } = require('./functions/lib');
+const { integrify } = require('../lib');
 const { getState, setState } = require('./functions/stateMachine');
 
 const admin = require('firebase-admin');
@@ -156,7 +156,6 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
 });
 
 test('test error conditions', async t => {
-  t.throws(() => integrify(), TypeError, /Cannot read property.*of undefined/i);
   t.throws(() => integrify({}), Error, /Input must be rule or config/i);
   t.throws(
     () => integrify({ rule: 'UNKNOWN_RULE_4a4e261a2e37' }),

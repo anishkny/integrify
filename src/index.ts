@@ -1,3 +1,6 @@
+import * as callerPath from 'caller-path';
+import { existsSync } from 'fs';
+import { dirname, sep } from 'path';
 import { Config, isConfig, isRule, Rule } from './common';
 import {
   DeleteReferencesRule,
@@ -19,10 +22,22 @@ export function integrify(config: Config): null;
 export function integrify(
   rule: ReplicateAttributesRule | DeleteReferencesRule | MaintainCountRule
 ): any;
-export function integrify(ruleOrConfig: Rule | Config) {
-  if (isConfig(ruleOrConfig)) {
+export function integrify(ruleOrConfig?: Rule | Config) {
+  if (!ruleOrConfig) {
+    const configs = readConfigsFromFile();
+    const functions = {};
+    configs.forEach(thisConfig => {
+      if (isReplicateAttributesRule(thisConfig)) {
+        functions[`replicate_${thisConfig.source.collection}`] = integrify(
+          thisConfig
+        );
+      }
+    });
+    return functions;
+  } else if (isConfig(ruleOrConfig)) {
     setCurrentConfig(ruleOrConfig);
   } else if (isRule(ruleOrConfig)) {
+    ensureCurrentConfig();
     if (isReplicateAttributesRule(ruleOrConfig)) {
       return integrifyReplicateAttributes(ruleOrConfig, currentConfig);
     } else if (isDeleteReferencesRule(ruleOrConfig)) {
@@ -36,6 +51,34 @@ export function integrify(ruleOrConfig: Rule | Config) {
     throw new Error(
       `Input must be rule or config: [${JSON.stringify(ruleOrConfig)}]`
     );
+  }
+}
+
+/**
+ * readConfigsFromFile - Read array of `integrify` configurations from
+ * `integrify.rules.js`
+ */
+function readConfigsFromFile() {
+  const cp = callerPath();
+  const rulesFile = `${dirname(cp)}${sep}integrify.rules.js`;
+  if (!existsSync(rulesFile)) {
+    throw new Error(`integrify: Rules file not found: [${rulesFile}]`);
+  }
+  return require(rulesFile);
+}
+
+/**
+ * ensureCurrentConfig - Check if `currentConfig` is defined, if not use default
+ * values
+ */
+function ensureCurrentConfig() {
+  if (!currentConfig.config.db) {
+    const admin = require('firebase-admin');
+    admin.initializeApp();
+    currentConfig.config.db = admin.firestore();
+  }
+  if (!currentConfig.config.functions) {
+    currentConfig.config.functions = require('firebase-functions');
   }
 }
 

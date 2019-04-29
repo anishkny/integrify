@@ -1,4 +1,4 @@
-const { integrify } = require('./lib');
+const { integrify } = require('../../lib');
 const { setState } = require('./stateMachine');
 
 const functions = require('firebase-functions');
