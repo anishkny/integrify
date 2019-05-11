@@ -3,9 +3,8 @@ const { setState } = require('./stateMachine');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp();
+admin.initializeApp({}, 'test-app');
 const db = admin.firestore();
-db.settings({ timestampsInSnapshots: true });
 
 integrify({ config: { db, functions } });
 

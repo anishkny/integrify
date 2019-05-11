@@ -38,14 +38,13 @@ export function integrify(ruleOrConfig?: Rule | Config) {
           functions[`decrement${thisRule.name}`],
         ] = integrify(thisRule);
       } else {
-        throw new Error(`Unknown rule: [${JSON.stringify(thisRule)}]`);
+        throw new Error(`integrify: Unknown rule: [${JSON.stringify(thisRule)}]`);
       }
     });
     return functions;
   } else if (isConfig(ruleOrConfig)) {
     setCurrentConfig(ruleOrConfig);
   } else if (isRule(ruleOrConfig)) {
-    ensureCurrentConfig();
     if (isReplicateAttributesRule(ruleOrConfig)) {
       return integrifyReplicateAttributes(ruleOrConfig, currentConfig);
     } else if (isDeleteReferencesRule(ruleOrConfig)) {
@@ -53,11 +52,11 @@ export function integrify(ruleOrConfig?: Rule | Config) {
     } else if (isMaintainCountRule(ruleOrConfig)) {
       return integrifyMaintainCount(ruleOrConfig, currentConfig);
     } else {
-      throw new Error(`Unknown rule: [${JSON.stringify(ruleOrConfig)}]`);
+      throw new Error(`integrify: Unknown rule: [${JSON.stringify(ruleOrConfig)}]`);
     }
   } else {
     throw new Error(
-      `Input must be rule or config: [${JSON.stringify(ruleOrConfig)}]`
+      `integrify: Input must be rule or config: [${JSON.stringify(ruleOrConfig)}]`
     );
   }
 }
@@ -73,21 +72,6 @@ function readRulesFromFile() {
     throw new Error(`integrify: Rules file not found: [${rulesFile}]`);
   }
   return require(rulesFile);
-}
-
-/**
- * ensureCurrentConfig - Check if `currentConfig` is defined, if not use default
- * values
- */
-function ensureCurrentConfig() {
-  if (!currentConfig.config.db) {
-    const admin = require('firebase-admin');
-    admin.initializeApp();
-    currentConfig.config.db = admin.firestore();
-  }
-  if (!currentConfig.config.functions) {
-    currentConfig.config.functions = require('firebase-functions');
-  }
 }
 
 const currentConfig: Config = {

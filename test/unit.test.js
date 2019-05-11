@@ -1,15 +1,17 @@
-const { getFirebaseCredentials, makeid, sleep } = require('./util');
-const fft = require('firebase-functions-test')(...getFirebaseCredentials());
+const { credentials, makeid, sleep } = require('./util');
+const fft = require('firebase-functions-test')({ projectId: credentials.projectId }, credentials.serviceAccountKeyFile);
 const test = require('ava');
 const { integrify } = require('../lib');
 const { getState, setState } = require('./functions/stateMachine');
 
-const sut = require('./functions');
 const admin = require('firebase-admin');
-admin.initializeApp(...getFirebaseCredentials());
+admin.initializeApp({
+  credential: admin.credential.cert(credentials.certificate),
+});
 const db = admin.firestore();
 
 test('test require', t => {
+  const sut = require('./functions');
   t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
   t.truthy(sut.replicateMasterToDetail.run);
 });
@@ -22,8 +24,8 @@ test.after(() => {
 });
 
 const testsuites = [
-  ['config-in-file', require('./functions/zero-config.index')],
   ['config-in-situ', require('./functions')],
+  ['config-in-file', require('./functions/rules-from-file.index')],
 ];
 
 testsuites.forEach(testsuite => {
@@ -125,7 +127,7 @@ async function testMaintainCount(sut, t) {
     .set({ favoritesCount: 0 });
 
   // Favorite the article a few times
-  const NUM_TIMES_TO_FAVORITE = 10;
+  const NUM_TIMES_TO_FAVORITE = 5;
   const wrappedIncrement = fft.wrap(sut.incrementFavoritesCount);
   const promises = [];
   const snap = fft.firestore.makeDocumentSnapshot(
@@ -138,7 +140,7 @@ async function testMaintainCount(sut, t) {
   }
 
   // Unfavorite the article a few times
-  const NUM_TIMES_TO_UNFAVORITE = 7;
+  const NUM_TIMES_TO_UNFAVORITE = 3;
   const wrappedDecrement = fft.wrap(sut.decrementFavoritesCount);
   for (let i = 1; i <= NUM_TIMES_TO_UNFAVORITE; ++i) {
     promises.push(wrappedDecrement(snap));
@@ -178,6 +180,8 @@ test('test error conditions', async t => {
     Error,
     /Unknown rule/i
   );
+  t.throws(() => require('./functions-bad-config'), Error, /Unknown rule/i);
+  t.throws(() => require('./functions-absent-config'), Error, /Rules file not found/i);
 
   t.pass();
 });
@@ -190,7 +194,7 @@ async function assertDocumentValueEventually(
 ) {
   log(
     `Asserting doc [${
-      docRef.path
+    docRef.path
     }] field [${fieldPath}] has value [${expectedValue}] ... `
   );
   await sleep(1000);
