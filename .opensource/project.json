@@ -1,0 +1,7 @@
+{
+  "name": "integrify",
+  "platforms: [
+    "Admin"
+  ],
+  "content": "README.md",
+}
