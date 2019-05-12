@@ -1,27 +1,44 @@
-const { getFirebaseCredentials, makeid, sleep } = require('./util');
-const fft = require('firebase-functions-test')(...getFirebaseCredentials());
-const sut = require('./functions');
+const { credentials, makeid, sleep } = require('./util');
+const fft = require('firebase-functions-test')({ projectId: credentials.projectId }, credentials.serviceAccountKeyFile);
 const test = require('ava');
-const { integrify } = require('./functions/lib');
+const { integrify } = require('../lib');
 const { getState, setState } = require('./functions/stateMachine');
 
 const admin = require('firebase-admin');
-admin.initializeApp(...getFirebaseCredentials());
+admin.initializeApp({
+  credential: admin.credential.cert(credentials.certificate),
+});
 const db = admin.firestore();
-let unsubscribe = null;
 
+let unsubscribe = null;
 test.after(() => {
   if (unsubscribe) {
     unsubscribe();
   }
 });
 
-test('test require', t => {
-  t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
-  t.truthy(sut.replicateMasterToDetail.run);
+const testsuites = [
+  ['rules-in-situ', require('./functions')],
+  ['rules-in-file', require('./functions/rules-from-file.index')],
+];
+
+testsuites.forEach(testsuite => {
+  const name = testsuite[0];
+  const sut = testsuite[1];
+
+  test(`test basic characteristics (${name})`, async t => {
+    t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
+    t.truthy(sut.replicateMasterToDetail.run);
+  });
+  test(`test REPLICATE_ATTRIBUTES (${name})`, async t =>
+    testReplicateAttributes(sut, t));
+  test(`test DELETE_REFERENCES (${name})`, async t =>
+    testDeleteReferences(sut, t));
+  test(`test MAINTAIN_COUNT (${name})`, async t =>
+    testMaintainCount(sut, t));
 });
 
-test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
+async function testReplicateAttributes(sut, t) {
   // Add a couple of detail documents to follow master
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
@@ -72,9 +89,9 @@ test('test REPLICATE_ATTRIBUTES (online mode)', async t => {
   await wrapped(irreleventChange, { params: { masterId: masterId } });
 
   await t.pass();
-});
+}
 
-test('test DELETE_REFERENCES (online mode)', async t => {
+async function testDeleteReferences(sut, t) {
   // Create some docs referencing master doc
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
@@ -98,9 +115,9 @@ test('test DELETE_REFERENCES (online mode)', async t => {
   );
 
   t.pass();
-});
+}
 
-test('test MAINTAIN_COUNT (online mode)', async t => {
+async function testMaintainCount(sut, t) {
   // Create an article to be favorited
   const articleId = makeid();
   await db
@@ -109,7 +126,7 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
     .set({ favoritesCount: 0 });
 
   // Favorite the article a few times
-  const NUM_TIMES_TO_FAVORITE = 10;
+  const NUM_TIMES_TO_FAVORITE = 5;
   const wrappedIncrement = fft.wrap(sut.incrementFavoritesCount);
   const promises = [];
   const snap = fft.firestore.makeDocumentSnapshot(
@@ -122,7 +139,7 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
   }
 
   // Unfavorite the article a few times
-  const NUM_TIMES_TO_UNFAVORITE = 7;
+  const NUM_TIMES_TO_UNFAVORITE = 3;
   const wrappedDecrement = fft.wrap(sut.decrementFavoritesCount);
   for (let i = 1; i <= NUM_TIMES_TO_UNFAVORITE; ++i) {
     promises.push(wrappedDecrement(snap));
@@ -153,16 +170,17 @@ test('test MAINTAIN_COUNT (online mode)', async t => {
   );
 
   t.pass();
-});
+}
 
 test('test error conditions', async t => {
-  t.throws(() => integrify(), TypeError, /Cannot read property.*of undefined/i);
   t.throws(() => integrify({}), Error, /Input must be rule or config/i);
   t.throws(
     () => integrify({ rule: 'UNKNOWN_RULE_4a4e261a2e37' }),
     Error,
     /Unknown rule/i
   );
+  t.throws(() => require('./functions-bad-rules-file'), Error, /Unknown rule/i);
+  t.throws(() => require('./functions-absent-rules-file'), Error, /Rules file not found/i);
 
   t.pass();
 });
@@ -175,7 +193,7 @@ async function assertDocumentValueEventually(
 ) {
   log(
     `Asserting doc [${
-      docRef.path
+    docRef.path
     }] field [${fieldPath}] has value [${expectedValue}] ... `
   );
   await sleep(1000);
