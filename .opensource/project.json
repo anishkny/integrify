@@ -1,7 +1,7 @@
 {
   "name": "integrify",
-  "platforms: [
+  "platforms": [
     "Admin"
   ],
-  "content": "README.md",
+  "content": "README.md"
 }
