@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [2.0.0](https://github.com/anishkny/integrify/compare/v1.2.1...v2.0.0) (2019-05-12)
+
+
+* feat(rulesFile)!: Add ability to read rules from file on disk (#17) ([abdf5ce](https://github.com/anishkny/integrify/commit/abdf5ce)), closes [#17](https://github.com/anishkny/integrify/issues/17)
+
+
+### BREAKING CHANGES
+
+* Allows users to call `integrify()` with no arguments and rules specified in a file named `functions/integrify.rules.js`.
+
+* feat: Handle all rules in file, add tests
+
+* test(rulesFile): Add tests for rules in config file, error conditions etc
+
+* docs(README): Add doc for rules in file
+
+
+
 ## [1.2.1](https://github.com/anishkny/integrify/compare/v1.2.0...v1.2.1) (2019-04-28)
 
 
