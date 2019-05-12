@@ -10,12 +10,6 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
-test('test require', t => {
-  const sut = require('./functions');
-  t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
-  t.truthy(sut.replicateMasterToDetail.run);
-});
-
 let unsubscribe = null;
 test.after(() => {
   if (unsubscribe) {
@@ -24,19 +18,24 @@ test.after(() => {
 });
 
 const testsuites = [
-  ['config-in-situ', require('./functions')],
-  ['config-in-file', require('./functions/rules-from-file.index')],
+  ['rules-in-situ', require('./functions')],
+  ['rules-in-file', require('./functions/rules-from-file.index')],
 ];
 
 testsuites.forEach(testsuite => {
   const name = testsuite[0];
-  const thisSut = testsuite[1];
+  const sut = testsuite[1];
+
+  test(`test basic characteristics (${name})`, async t => {
+    t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
+    t.truthy(sut.replicateMasterToDetail.run);
+  });
   test(`test REPLICATE_ATTRIBUTES (${name})`, async t =>
-    testReplicateAttributes(thisSut, t));
+    testReplicateAttributes(sut, t));
   test(`test DELETE_REFERENCES (${name})`, async t =>
-    testDeleteReferences(thisSut, t));
+    testDeleteReferences(sut, t));
   test(`test MAINTAIN_COUNT (${name})`, async t =>
-    testMaintainCount(thisSut, t));
+    testMaintainCount(sut, t));
 });
 
 async function testReplicateAttributes(sut, t) {
@@ -180,8 +179,8 @@ test('test error conditions', async t => {
     Error,
     /Unknown rule/i
   );
-  t.throws(() => require('./functions-bad-config'), Error, /Unknown rule/i);
-  t.throws(() => require('./functions-absent-config'), Error, /Rules file not found/i);
+  t.throws(() => require('./functions-bad-rules-file'), Error, /Unknown rule/i);
+  t.throws(() => require('./functions-absent-rules-file'), Error, /Rules file not found/i);
 
   t.pass();
 });

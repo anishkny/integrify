@@ -2,7 +2,7 @@ const { integrify } = require('../../lib');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp({}, 'absent-config-file-app');
+admin.initializeApp({}, 'functions-absent-rules-file-app');
 const db = admin.firestore();
 
 integrify({ config: { db, functions } });

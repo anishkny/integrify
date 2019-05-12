@@ -14,6 +14,8 @@
 ## Usage
 
 ```js
+// index.js
+
 const { integrify } = require('integrify');
 
 const functions = require('firebase-functions');
@@ -94,4 +96,43 @@ module.exports.deleteReferencesToMaster = integrify({
     attribute: 'favoritesCount',
   },
 });
+```
+
+Deploy to Firebase by executing:
+
+```bash
+$ firebase deploy --only functions
+```
+
+### Rules File
+
+Alternately, rules can be specified in a file named `integrify.rules.js`.
+
+```js
+// index.js
+
+const { integrify } = require('integrify');
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+const db = admin.firestore();
+
+integrify({ config: { functions, db } });
+
+// Rules will be loaded from "integrify.rules.js"
+module.exports = integrify();
+```
+
+```js
+// integrify.rules.js
+
+module.exports = [
+  {
+    rule: 'REPLICATE_ATTRIBUTES',
+    name: 'replicateMasterToDetail',
+    // ...
+  },
+  // ...
+];
 ```
