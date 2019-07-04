@@ -1,15 +1,19 @@
 {
   "scripts": {
-    "deploy": "firebase deploy --only functions"
+    "deploy": "firebase deploy --only functions",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "firebase-admin": "^6.5.0",
-    "firebase-functions": "^2.1.0"
+    "firebase-functions": "^2.1.0",
+    "snyk": "^1.189.0"
   },
   "engines": {
     "node": "8"
   },
   "devDependencies": {
     "firebase-tools": "^6.3.0"
-  }
+  },
+  "snyk": true
 }
