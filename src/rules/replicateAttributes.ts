@@ -10,6 +10,7 @@ export interface ReplicateAttributesRule extends Rule {
     attributeMapping: {
       [sourceAttribute: string]: string;
     };
+    isCollectionGroup?: boolean;
   }>;
   hooks?: {
     pre?: Function;
@@ -101,30 +102,32 @@ export function integrifyReplicateAttributes(
           }
         });
         console.log(
-          `integrify: On collection [${target.collection}], applying update:`,
+          `integrify: On collection ${target.isCollectionGroup ? 'group ' : ''}[${target.collection}], applying update:`,
           update
         );
 
         // For each doc in targetCollection where foreignKey matches master.id,
         // apply "update" computed above
+        let whereable = null;
+        if (target.isCollectionGroup) {
+          whereable = db.collectionGroup(targetCollection);
+        } else {
+          whereable = db.collection(targetCollection);
+        }
         promises.push(
-          db
-            .collection(targetCollection)
+          whereable
             .where(target.foreignKey, '==', masterId)
             .get()
             .then(detailDocs => {
               detailDocs.forEach(detailDoc => {
                 console.log(
-                  `integrify: On collection [${target.collection}], id [${
+                  `integrify: On collection ${target.isCollectionGroup ? 'group ' : ''}[${target.collection}], id [${
                     detailDoc.id
                   }], applying update:`,
                   update
                 );
                 promises.push(
-                  db
-                    .collection(target.collection)
-                    .doc(detailDoc.id)
-                    .update(update)
+                  detailDoc.ref.update(update)
                 );
               });
             })

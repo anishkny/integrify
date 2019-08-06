@@ -23,6 +23,7 @@ module.exports = [
           masterField1: 'detail2Field1',
           masterField3: 'detail2Field3',
         },
+        isCollectionGroup: true,
       },
     ],
     hooks: {
