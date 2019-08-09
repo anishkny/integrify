@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [2.1.0](https://github.com/anishkny/integrify/compare/v2.0.0...v2.1.0) (2019-08-09)
+
+
+### Features
+
+* **replicateAttributes:** Add ability to replicate to collection groups (isCollectionGroup) ([#29](https://github.com/anishkny/integrify/issues/29)) ([2751b3e](https://github.com/anishkny/integrify/commit/2751b3e))
+
+
+
 # [2.0.0](https://github.com/anishkny/integrify/compare/v1.2.1...v2.0.0) (2019-05-12)
 
 
