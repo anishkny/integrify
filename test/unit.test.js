@@ -42,7 +42,9 @@ async function testReplicateAttributes(sut, t) {
   // Add a couple of detail documents to follow master
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
-  await db.collection('detail2').add({ masterId: masterId });
+  const nestedDocRef = db.collection('somecoll').doc('somedoc');
+  await nestedDocRef.set({x: 1});
+  await nestedDocRef.collection('detail2').add({ masterId: masterId });
 
   // Call trigger to replicate attributes from master
   const beforeSnap = fft.firestore.makeDocumentSnapshot(
@@ -73,7 +75,7 @@ async function testReplicateAttributes(sut, t) {
     1
   );
   await assertQuerySizeEventually(
-    db
+    nestedDocRef
       .collection('detail2')
       .where('masterId', '==', masterId)
       .where('detail2Field3', '==', 'after3'),
