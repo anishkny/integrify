@@ -30,18 +30,12 @@ export function integrifyReplicateAttributes(
   const functions = config.config.functions;
 
   console.log(
-    `integrify: Creating function to replicate source collection [${
-      rule.source.collection
-    }]`
+    `integrify: Creating function to replicate source collection [${rule.source.collection}]`
   );
   rule.targets.forEach(target => {
     Object.keys(target.attributeMapping).forEach(sourceAttribute => {
       console.log(
-        `integrify: Replicating [${
-          rule.source.collection
-        }].[${sourceAttribute}] => [${target.collection}].[${
-          target.attributeMapping[sourceAttribute]
-        }]`
+        `integrify: Replicating [${rule.source.collection}].[${sourceAttribute}] => [${target.collection}].[${target.attributeMapping[sourceAttribute]}]`
       );
     });
   });
@@ -60,9 +54,7 @@ export function integrifyReplicateAttributes(
       const masterId = context.params.masterId;
       const newValue = change.after.data();
       console.log(
-        `integrify: Detected update in [${
-          rule.source.collection
-        }], id [${masterId}], new value:`,
+        `integrify: Detected update in [${rule.source.collection}], id [${masterId}], new value:`,
         newValue
       );
 
@@ -102,7 +94,9 @@ export function integrifyReplicateAttributes(
           }
         });
         console.log(
-          `integrify: On collection ${target.isCollectionGroup ? 'group ' : ''}[${target.collection}], applying update:`,
+          `integrify: On collection ${
+            target.isCollectionGroup ? 'group ' : ''
+          }[${target.collection}], applying update:`,
           update
         );
 
@@ -121,14 +115,14 @@ export function integrifyReplicateAttributes(
             .then(detailDocs => {
               detailDocs.forEach(detailDoc => {
                 console.log(
-                  `integrify: On collection ${target.isCollectionGroup ? 'group ' : ''}[${target.collection}], id [${
+                  `integrify: On collection ${
+                    target.isCollectionGroup ? 'group ' : ''
+                  }[${target.collection}], id [${
                     detailDoc.id
                   }], applying update:`,
                   update
                 );
-                promises.push(
-                  detailDoc.ref.update(update)
-                );
+                promises.push(detailDoc.ref.update(update));
               });
             })
         );

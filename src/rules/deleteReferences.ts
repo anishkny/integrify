@@ -25,9 +25,7 @@ export function integrifyDeleteReferences(
 
   rule.targets.forEach(target =>
     console.log(
-      `integrify: Creating function to delete all references to source [${
-        rule.source.collection
-      }] from [${target.collection}] linked by key [${target.foreignKey}]`
+      `integrify: Creating function to delete all references to source [${rule.source.collection}] from [${target.collection}] linked by key [${target.foreignKey}]`
     )
   );
 
@@ -36,9 +34,7 @@ export function integrifyDeleteReferences(
     .onDelete((snap, context) => {
       const masterId = context.params.masterId;
       console.log(
-        `integrify: Detected delete in [${
-          rule.source.collection
-        }], id [${masterId}]`
+        `integrify: Detected delete in [${rule.source.collection}], id [${masterId}]`
       );
 
       // Call "pre" hook if defined
@@ -52,9 +48,7 @@ export function integrifyDeleteReferences(
       const db = config.config.db;
       rule.targets.forEach(target => {
         console.log(
-          `integrify: Deleting all docs in [${
-            target.collection
-          }] where foreign key [${target.foreignKey}] matches [${masterId}]`
+          `integrify: Deleting all docs in [${target.collection}] where foreign key [${target.foreignKey}] matches [${masterId}]`
         );
         // Delete all docs in this target corresponding to deleted master doc
         promises.push(

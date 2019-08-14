@@ -38,7 +38,9 @@ export function integrify(ruleOrConfig?: Rule | Config) {
           functions[`decrement${thisRule.name}`],
         ] = integrify(thisRule);
       } else {
-        throw new Error(`integrify: Unknown rule: [${JSON.stringify(thisRule)}]`);
+        throw new Error(
+          `integrify: Unknown rule: [${JSON.stringify(thisRule)}]`
+        );
       }
     });
     return functions;
@@ -52,11 +54,15 @@ export function integrify(ruleOrConfig?: Rule | Config) {
     } else if (isMaintainCountRule(ruleOrConfig)) {
       return integrifyMaintainCount(ruleOrConfig, currentConfig);
     } else {
-      throw new Error(`integrify: Unknown rule: [${JSON.stringify(ruleOrConfig)}]`);
+      throw new Error(
+        `integrify: Unknown rule: [${JSON.stringify(ruleOrConfig)}]`
+      );
     }
   } else {
     throw new Error(
-      `integrify: Input must be rule or config: [${JSON.stringify(ruleOrConfig)}]`
+      `integrify: Input must be rule or config: [${JSON.stringify(
+        ruleOrConfig
+      )}]`
     );
   }
 }
