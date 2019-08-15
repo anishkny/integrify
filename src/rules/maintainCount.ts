@@ -27,11 +27,7 @@ export function integrifyMaintainCount(
   const db = config.config.db;
 
   console.log(
-    `integrify: Creating function to maintain count of [${
-      rule.source.collection
-    }] with foreign key [${rule.source.foreignKey}] into [${
-      rule.target.collection
-    }].[${rule.target.attribute}]`
+    `integrify: Creating function to maintain count of [${rule.source.collection}] with foreign key [${rule.source.foreignKey}] into [${rule.target.collection}].[${rule.target.attribute}]`
   );
 
   return [
@@ -54,9 +50,7 @@ export function integrifyMaintainCount(
     // No-op if target does not exist
     if (!targetSnap.exists) {
       console.log(
-        `integrify: WARNING: Target document does not exist in [${
-          rule.target.collection
-        }], id [${targetId}]`
+        `integrify: WARNING: Target document does not exist in [${rule.target.collection}], id [${targetId}]`
       );
       return;
     }
