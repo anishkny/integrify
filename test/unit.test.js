@@ -1,5 +1,8 @@
 const { credentials, makeid, sleep } = require('./util');
-const fft = require('firebase-functions-test')({ projectId: credentials.projectId }, credentials.serviceAccountKeyFile);
+const fft = require('firebase-functions-test')(
+  { projectId: credentials.projectId },
+  credentials.serviceAccountKeyFile
+);
 const test = require('ava');
 const { integrify } = require('../lib');
 const { getState, setState } = require('./functions/stateMachine');
@@ -34,8 +37,7 @@ testsuites.forEach(testsuite => {
     testReplicateAttributes(sut, t));
   test(`test DELETE_REFERENCES (${name})`, async t =>
     testDeleteReferences(sut, t));
-  test(`test MAINTAIN_COUNT (${name})`, async t =>
-    testMaintainCount(sut, t));
+  test(`test MAINTAIN_COUNT (${name})`, async t => testMaintainCount(sut, t));
 });
 
 async function testReplicateAttributes(sut, t) {
@@ -43,7 +45,7 @@ async function testReplicateAttributes(sut, t) {
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
   const nestedDocRef = db.collection('somecoll').doc('somedoc');
-  await nestedDocRef.set({x: 1});
+  await nestedDocRef.set({ x: 1 });
   await nestedDocRef.collection('detail2').add({ masterId: masterId });
 
   // Call trigger to replicate attributes from master
@@ -97,6 +99,17 @@ async function testDeleteReferences(sut, t) {
   // Create some docs referencing master doc
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
+  const nestedDocRef = db.collection('somecoll').doc('somedoc');
+  await nestedDocRef.set({ x: 1 });
+  await nestedDocRef.collection('detail2').add({ masterId: masterId });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc('somedoc')
+      .collection('detail2')
+      .where('masterId', '==', masterId),
+    1
+  );
 
   // Trigger function to delete references
   const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
@@ -113,6 +126,14 @@ async function testDeleteReferences(sut, t) {
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
     db.collection('detail1').where('masterId', '==', masterId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc('somedoc')
+      .collection('detail2')
+      .where('masterId', '==', masterId),
     0
   );
 
@@ -182,7 +203,11 @@ test('test error conditions', async t => {
     /Unknown rule/i
   );
   t.throws(() => require('./functions-bad-rules-file'), Error, /Unknown rule/i);
-  t.throws(() => require('./functions-absent-rules-file'), Error, /Rules file not found/i);
+  t.throws(
+    () => require('./functions-absent-rules-file'),
+    Error,
+    /Rules file not found/i
+  );
 
   t.pass();
 });
@@ -194,9 +219,7 @@ async function assertDocumentValueEventually(
   log = console.log
 ) {
   log(
-    `Asserting doc [${
-    docRef.path
-    }] field [${fieldPath}] has value [${expectedValue}] ... `
+    `Asserting doc [${docRef.path}] field [${fieldPath}] has value [${expectedValue}] ... `
   );
   await sleep(1000);
   await new Promise(res => {
