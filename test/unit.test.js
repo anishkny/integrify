@@ -196,16 +196,14 @@ async function testMaintainCount(sut, t) {
 }
 
 test('test error conditions', async t => {
-  t.throws(() => integrify({}), Error, /Input must be rule or config/i);
+  t.throws(() => integrify({}), /Input must be rule or config/i);
   t.throws(
     () => integrify({ rule: 'UNKNOWN_RULE_4a4e261a2e37' }),
-    Error,
     /Unknown rule/i
   );
-  t.throws(() => require('./functions-bad-rules-file'), Error, /Unknown rule/i);
+  t.throws(() => require('./functions-bad-rules-file'), /Unknown rule/i);
   t.throws(
     () => require('./functions-absent-rules-file'),
-    Error,
     /Rules file not found/i
   );
 

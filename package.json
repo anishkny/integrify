@@ -25,28 +25,29 @@
     "lib"
   ],
   "scripts": {
-    "lint": "tslint --project ./tsconfig.json",
+    "format": "prettier --check --write {src,test}/*.{ts,js} {src,test}/**/*.{ts,js}",
+    "lint": "npm run format && tslint --project ./tsconfig.json",
     "build": "npm run lint && tsc",
     "test": "npm run build && ./test/test.sh"
   },
   "devDependencies": {
-    "ava": "^1.4.1",
-    "firebase-admin": "^7.3.0",
-    "firebase-functions": "^2.3.0",
+    "ava": "^2.3.0",
+    "firebase-admin": "^8.3.0",
+    "firebase-functions": "^3.2.0",
     "firebase-functions-test": "^0.1.6",
-    "nyc": "^13.0.0",
+    "nyc": "^13.3.0",
     "prettier": "^1.18.2",
-    "standard-version": "^5.0.2",
-    "tslint": "^5.16.0",
+    "standard-version": "^7.0.0",
+    "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.4.4"
+    "typescript": "^3.5.3"
   },
   "peerDependencies": {
-    "firebase-admin": "^7.3.0",
-    "firebase-functions": "^2.3.0"
+    "firebase-admin": "^8.3.0",
+    "firebase-functions": "^3.2.0"
   },
   "optionalDependencies": {
-    "coveralls": "^3.0.3"
+    "coveralls": "^3.0.6"
   },
   "dependencies": {
     "caller-path": "^2.0.0"
