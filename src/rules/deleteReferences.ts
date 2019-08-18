@@ -7,6 +7,7 @@ export interface DeleteReferencesRule extends Rule {
   targets: Array<{
     collection: string;
     foreignKey: string;
+    isCollectionGroup?: boolean;
   }>;
   hooks?: {
     pre?: Function;
@@ -48,25 +49,31 @@ export function integrifyDeleteReferences(
       const db = config.config.db;
       rule.targets.forEach(target => {
         console.log(
-          `integrify: Deleting all docs in [${target.collection}] where foreign key [${target.foreignKey}] matches [${masterId}]`
+          `integrify: Deleting all docs in collection ${
+            target.isCollectionGroup ? 'group ' : ''
+          }[${target.collection}] where foreign key [${
+            target.foreignKey
+          }] matches [${masterId}]`
         );
         // Delete all docs in this target corresponding to deleted master doc
+        let whereable = null;
+        if (target.isCollectionGroup) {
+          whereable = db.collectionGroup(target.collection);
+        } else {
+          whereable = db.collection(target.collection);
+        }
         promises.push(
-          db
-            .collection(target.collection)
+          whereable
             .where(target.foreignKey, '==', masterId)
             .get()
             .then(querySnap => {
               querySnap.forEach(doc => {
                 console.log(
-                  `integrify: Deleting [${target.collection}], id [${doc.id}]`
+                  `integrify: Deleting [${target.collection}]${
+                    target.isCollectionGroup ? ' (group)' : ''
+                  }, id [${doc.id}]`
                 );
-                promises.push(
-                  db
-                    .collection(target.collection)
-                    .doc(doc.id)
-                    .delete()
-                );
+                promises.push(doc.ref.delete());
               });
             })
         );

@@ -49,6 +49,11 @@ module.exports.deleteReferencesToMaster = integrify({
       collection: 'detail1',
       foreignKey: 'masterId',
     },
+    {
+      collection: 'detail2',
+      foreignKey: 'masterId',
+      isCollectionGroup: true,
+    },
   ],
   hooks: {
     pre: (snap, context) => {
