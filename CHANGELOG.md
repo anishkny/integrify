@@ -1,6 +1,13 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [2.2.0](https://github.com/anishkny/integrify/compare/v2.1.0...v2.2.0) (2019-08-20)
+
+
+### Features
+
+* **deleteReferences:** Add ability to delete from collection groups ([#31](https://github.com/anishkny/integrify/issues/31)) ([ba31ab6](https://github.com/anishkny/integrify/commit/ba31ab6))
 
 # [2.1.0](https://github.com/anishkny/integrify/compare/v2.0.0...v2.1.0) (2019-08-09)
 
