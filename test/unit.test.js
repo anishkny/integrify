@@ -29,15 +29,15 @@ testsuites.forEach(testsuite => {
   const name = testsuite[0];
   const sut = testsuite[1];
 
-  test(`test basic characteristics (${name})`, async t => {
+  test(`[${name}] test basic characteristics`, async t => {
     t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
     t.truthy(sut.replicateMasterToDetail.run);
   });
-  test(`test REPLICATE_ATTRIBUTES (${name})`, async t =>
+  test(`[${name}] test REPLICATE_ATTRIBUTES`, async t =>
     testReplicateAttributes(sut, t));
-  test(`test DELETE_REFERENCES (${name})`, async t =>
+  test(`[${name}] test DELETE_REFERENCES`, async t =>
     testDeleteReferences(sut, t));
-  test(`test MAINTAIN_COUNT (${name})`, async t => testMaintainCount(sut, t));
+  test(`[${name}] test MAINTAIN_COUNT`, async t => testMaintainCount(sut, t));
 });
 
 async function testReplicateAttributes(sut, t) {
