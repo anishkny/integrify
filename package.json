@@ -25,10 +25,12 @@
     "lib"
   ],
   "scripts": {
+    "clean": "rm -rf lib/",
     "format": "prettier --check --write {src,test}/*.{ts,js} {src,test}/**/*.{ts,js}",
     "lint": "npm run format && tslint --project ./tsconfig.json",
-    "build": "npm run lint && tsc",
-    "test": "npm run build && ./test/test.sh"
+    "build": "npm run clean && npm run lint && tsc",
+    "test": "npm run build && ./test/test.sh",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "ava": "^2.3.0",
