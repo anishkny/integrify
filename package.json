@@ -33,10 +33,13 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^8.1.0",
     "ava": "^2.3.0",
     "firebase-admin": "^8.3.0",
     "firebase-functions": "^3.2.0",
     "firebase-functions-test": "^0.1.6",
+    "husky": "^3.0.5",
     "nyc": "^13.3.0",
     "prettier": "^1.18.2",
     "standard-version": "^7.0.0",
@@ -53,5 +56,16 @@
   },
   "dependencies": {
     "caller-path": "^2.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "commit-msg": "commitlint --verbose --env HUSKY_GIT_PARAMS"
+      }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }
