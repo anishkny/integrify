@@ -1,6 +1,6 @@
 {
   "name": "integrify",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Enforce referential integrity in Firestore using Cloud Functions",
   "keywords": [
     "firebase",
@@ -30,7 +30,8 @@
     "lint": "npm run format && tslint --project ./tsconfig.json",
     "build": "npm run clean && npm run lint && tsc",
     "test": "npm run build && ./test/test.sh",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "git push --dry-run && npm whoami && standard-version && git push --follow-tags origin master && npm publish"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
@@ -61,27 +62,59 @@
     "hooks": {
       "pre-commit": "npm run lint",
       "commit-msg": "commitlint --verbose --env HUSKY_GIT_PARAMS"
-      }
+    }
   },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
     ],
     "rules": {
-      "scope-case": [1, "always", "lower-case"],
-      "subject-case": [2, "always", "sentence-case"]
+      "scope-case": [
+        1,
+        "always",
+        "lower-case"
+      ],
+      "subject-case": [
+        2,
+        "always",
+        "sentence-case"
+      ]
     }
   },
   "standard-version": {
     "types": [
-      {"type": "feat", "section": "Features"},
-      {"type": "fix", "section": "Bug Fixes"},
-      {"type": "chore", "section": "Other"},
-      {"type": "docs", "section": "Other"},
-      {"type": "style", "section": "Other"},
-      {"type": "refactor", "section": "Other"},
-      {"type": "perf", "section": "Other"},
-      {"type": "test", "section": "Other"}
+      {
+        "type": "feat",
+        "section": "Features"
+      },
+      {
+        "type": "fix",
+        "section": "Bug Fixes"
+      },
+      {
+        "type": "chore",
+        "section": "Other"
+      },
+      {
+        "type": "docs",
+        "section": "Other"
+      },
+      {
+        "type": "style",
+        "section": "Other"
+      },
+      {
+        "type": "refactor",
+        "section": "Other"
+      },
+      {
+        "type": "perf",
+        "section": "Other"
+      },
+      {
+        "type": "test",
+        "section": "Other"
+      }
     ]
   }
 }
