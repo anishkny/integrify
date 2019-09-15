@@ -29,14 +29,10 @@ export function integrify(ruleOrConfig?: Rule | Config) {
     rules.forEach(thisRule => {
       if (
         isReplicateAttributesRule(thisRule) ||
-        isDeleteReferencesRule(thisRule)
+        isDeleteReferencesRule(thisRule) ||
+        isMaintainCountRule(thisRule)
       ) {
         functions[thisRule.name] = integrify(thisRule);
-      } else if (isMaintainCountRule(thisRule)) {
-        [
-          functions[`increment${thisRule.name}`],
-          functions[`decrement${thisRule.name}`],
-        ] = integrify(thisRule);
       } else {
         throw new Error(
           `integrify: Unknown rule: [${JSON.stringify(thisRule)}]`

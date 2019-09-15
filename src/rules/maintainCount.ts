@@ -30,14 +30,23 @@ export function integrifyMaintainCount(
     `integrify: Creating function to maintain count of [${rule.source.collection}] with foreign key [${rule.source.foreignKey}] into [${rule.target.collection}].[${rule.target.attribute}]`
   );
 
-  return [
-    functions.firestore
-      .document(`${rule.source.collection}/{docId}`)
-      .onCreate(snap => updateCount(snap, Delta.Increment)),
-    functions.firestore
-      .document(`${rule.source.collection}/{docId}`)
-      .onDelete(snap => updateCount(snap, Delta.Decrement)),
-  ];
+  return functions.firestore
+    .document(`${rule.source.collection}/{docId}`)
+    .onWrite(change => {
+      // Determine if document has been added or deleted
+      const documentWasAdded = change.after.exists && !change.before.exists;
+      const documentWasDeleted = !change.after.exists && change.before.exists;
+
+      if (documentWasAdded) {
+        return updateCount(change.after, Delta.Increment);
+      } else if (documentWasDeleted) {
+        return updateCount(change.before, Delta.Decrement);
+      } else {
+        console.log(
+          `integrify: WARNING: Ignoring update trigger for MAINTAIN_COUNT on collection: [${rule.source.collection}]`
+        );
+      }
+    });
 
   async function updateCount(
     snap: FirebaseFirestore.DocumentSnapshot,

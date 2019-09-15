@@ -62,10 +62,7 @@ module.exports.deleteReferencesToMaster = integrify({
   },
 });
 
-[
-  module.exports.incrementFavoritesCount,
-  module.exports.decrementFavoritesCount,
-] = integrify({
+module.exports.maintainFavoritesCount = integrify({
   rule: 'MAINTAIN_COUNT',
   source: {
     collection: 'favorites',
