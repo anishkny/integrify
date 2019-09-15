@@ -30,7 +30,8 @@
     "lint": "npm run format && tslint --project ./tsconfig.json",
     "build": "npm run clean && npm run lint && tsc",
     "test": "npm run build && ./test/test.sh",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "git push --dry-run && npm whoami && standard-version && git push --follow-tags origin master && npm publish"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
