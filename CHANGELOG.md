@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.2](https://github.com/anishkny/integrify/compare/v2.2.1...v2.2.2) (2019-09-15)
+
+
+### Chores
+
+* Add prepublishOnly script ([#33](https://github.com/anishkny/integrify/issues/33)) ([2aae2a6](https://github.com/anishkny/integrify/commit/2aae2a6))
+* **changelog:** Include all commit types ([#35](https://github.com/anishkny/integrify/issues/35)) ([5c0b50c](https://github.com/anishkny/integrify/commit/5c0b50c))
+* **changelog:** Name sections appropriately ([560ad90](https://github.com/anishkny/integrify/commit/560ad90))
+* **script:** Add release script ([fc7f3a6](https://github.com/anishkny/integrify/commit/fc7f3a6))
+* **scripts:** Add pre-commit, commit-msg husky hooks ([#34](https://github.com/anishkny/integrify/issues/34)) ([2cb0bba](https://github.com/anishkny/integrify/commit/2cb0bba))
+
 ### [2.2.1](https://github.com/anishkny/integrify/compare/v2.2.0...v2.2.1) (2019-08-20)
 
 ## [2.2.0](https://github.com/anishkny/integrify/compare/v2.1.0...v2.2.0) (2019-08-20)

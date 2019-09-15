@@ -1,6 +1,6 @@
 {
   "name": "integrify",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Enforce referential integrity in Firestore using Cloud Functions",
   "keywords": [
     "firebase",
@@ -62,26 +62,54 @@
     "hooks": {
       "pre-commit": "npm run lint",
       "commit-msg": "commitlint --verbose --env HUSKY_GIT_PARAMS"
-      }
+    }
   },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
     ],
     "rules": {
-      "subject-case": [2, "always", "sentence-case"]
+      "subject-case": [
+        2,
+        "always",
+        "sentence-case"
+      ]
     }
   },
   "standard-version": {
     "types": [
-      {"type": "feat", "section": "Features"},
-      {"type": "fix", "section": "Bug Fixes"},
-      {"type": "chore", "section": "Chores"},
-      {"type": "docs", "section": "Docs"},
-      {"type": "style", "section": "Style"},
-      {"type": "refactor", "section": "Refactor"},
-      {"type": "perf", "section": "Performance"},
-      {"type": "test", "section": "Tests"}
+      {
+        "type": "feat",
+        "section": "Features"
+      },
+      {
+        "type": "fix",
+        "section": "Bug Fixes"
+      },
+      {
+        "type": "chore",
+        "section": "Chores"
+      },
+      {
+        "type": "docs",
+        "section": "Docs"
+      },
+      {
+        "type": "style",
+        "section": "Style"
+      },
+      {
+        "type": "refactor",
+        "section": "Refactor"
+      },
+      {
+        "type": "perf",
+        "section": "Performance"
+      },
+      {
+        "type": "test",
+        "section": "Tests"
+      }
     ]
   }
 }
