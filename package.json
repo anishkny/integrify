@@ -93,27 +93,27 @@
       },
       {
         "type": "chore",
-        "section": "Other"
+        "section": "Chores"
       },
       {
         "type": "docs",
-        "section": "Other"
+        "section": "Docs"
       },
       {
         "type": "style",
-        "section": "Other"
+        "section": "Style"
       },
       {
         "type": "refactor",
-        "section": "Other"
+        "section": "Refactor"
       },
       {
         "type": "perf",
-        "section": "Other"
+        "section": "Performance"
       },
       {
         "type": "test",
-        "section": "Other"
+        "section": "Tests"
       }
     ]
   }
