@@ -40,7 +40,7 @@
     "firebase-admin": "^8.3.0",
     "firebase-functions": "^3.2.0",
     "firebase-functions-test": "^0.1.6",
-    "husky": "^3.0.5",
+    "husky": "^4.0.2",
     "nyc": "^13.3.0",
     "prettier": "^1.18.2",
     "standard-version": "^7.0.0",
