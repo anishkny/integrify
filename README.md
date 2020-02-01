@@ -49,7 +49,7 @@ module.exports.replicateMasterToDetail = integrify({
       },
 
       // Optional:
-      isCollectionGroup: true,  // Replicate into collection group, see more below
+      isCollectionGroup: true, // Replicate into collection group, see more below
     },
   ],
 
@@ -74,7 +74,7 @@ module.exports.deleteReferencesToMaster = integrify({
       foreignKey: 'masterId',
 
       // Optional:
-      isCollectionGroup: true,  // Delete from collection group, see more below
+      isCollectionGroup: true, // Delete from collection group, see more below
     },
   ],
 
@@ -88,10 +88,7 @@ module.exports.deleteReferencesToMaster = integrify({
 });
 
 // Automatically maintain count
-[
-  module.exports.incrementFavoritesCount,
-  module.exports.decrementFavoritesCount,
-] = integrify({
+module.exports.maintainFavoritesCount = integrify({
   rule: 'MAINTAIN_COUNT',
   source: {
     collection: 'favorites',

@@ -57,7 +57,7 @@ module.exports = [
   },
   {
     rule: 'MAINTAIN_COUNT',
-    name: 'FavoritesCount',
+    name: 'maintainFavoritesCount',
     source: {
       collection: 'favorites',
       foreignKey: 'articleId',

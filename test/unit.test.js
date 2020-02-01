@@ -150,22 +150,22 @@ async function testMaintainCount(sut, t) {
 
   // Favorite the article a few times
   const NUM_TIMES_TO_FAVORITE = 5;
-  const wrappedIncrement = fft.wrap(sut.incrementFavoritesCount);
+  const wrappedUpdater = fft.wrap(sut.maintainFavoritesCount);
   const promises = [];
+  const emptySnap = fft.firestore.makeDocumentSnapshot({});
   const snap = fft.firestore.makeDocumentSnapshot(
     { articleId: articleId },
     `favorites/${makeid()}`
   );
   for (let i = 1; i <= NUM_TIMES_TO_FAVORITE; ++i) {
-    promises.push(wrappedIncrement(snap));
+    promises.push(wrappedUpdater(fft.makeChange(emptySnap, snap)));
     await sleep(500);
   }
 
   // Unfavorite the article a few times
   const NUM_TIMES_TO_UNFAVORITE = 3;
-  const wrappedDecrement = fft.wrap(sut.decrementFavoritesCount);
   for (let i = 1; i <= NUM_TIMES_TO_UNFAVORITE; ++i) {
-    promises.push(wrappedDecrement(snap));
+    promises.push(wrappedUpdater(fft.makeChange(snap, emptySnap)));
     await sleep(500);
   }
   await Promise.all(promises);
@@ -177,14 +177,17 @@ async function testMaintainCount(sut, t) {
     NUM_TIMES_TO_FAVORITE - NUM_TIMES_TO_UNFAVORITE
   );
 
+  // Ensure warning is printed if triggered by an actual update
+  await wrappedUpdater(fft.makeChange(snap, snap));
+
   // Delete article and ensure favoritesCount is not updated on decrement or
   // increment
   await db
     .collection('articles')
     .doc(articleId)
     .delete();
-  await wrappedDecrement(snap);
-  await wrappedIncrement(snap);
+  await wrappedUpdater(fft.makeChange(snap, emptySnap));
+  await wrappedUpdater(fft.makeChange(emptySnap, snap));
   await assertQuerySizeEventually(
     db
       .collection('articles')
