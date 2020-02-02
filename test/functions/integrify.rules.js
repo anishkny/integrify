@@ -26,11 +26,6 @@ module.exports = [
         isCollectionGroup: true,
       },
     ],
-    hooks: {
-      pre: (change, context) => {
-        setState({ change, context });
-      },
-    },
   },
   {
     rule: 'DELETE_REFERENCES',
@@ -49,11 +44,6 @@ module.exports = [
         isCollectionGroup: true,
       },
     ],
-    hooks: {
-      pre: (snap, context) => {
-        setState({ snap, context });
-      },
-    },
   },
   {
     rule: 'MAINTAIN_COUNT',

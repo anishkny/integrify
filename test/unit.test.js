@@ -34,13 +34,13 @@ testsuites.forEach(testsuite => {
     t.truthy(sut.replicateMasterToDetail.run);
   });
   test(`[${name}] test REPLICATE_ATTRIBUTES`, async t =>
-    testReplicateAttributes(sut, t));
+    testReplicateAttributes(sut, t, name));
   test(`[${name}] test DELETE_REFERENCES`, async t =>
-    testDeleteReferences(sut, t));
+    testDeleteReferences(sut, t, name));
   test(`[${name}] test MAINTAIN_COUNT`, async t => testMaintainCount(sut, t));
 });
 
-async function testReplicateAttributes(sut, t) {
+async function testReplicateAttributes(sut, t, name) {
   // Add a couple of detail documents to follow master
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
@@ -62,11 +62,13 @@ async function testReplicateAttributes(sut, t) {
   setState({ change: null, context: null });
   await wrapped(change, { params: { masterId: masterId } });
 
-  // Assert pre-hook was called
-  const state = getState();
-  t.truthy(state.change);
-  t.truthy(state.context);
-  t.is(state.context.params.masterId, masterId);
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.change);
+    t.truthy(state.context);
+    t.is(state.context.params.masterId, masterId);
+  }
 
   // Assert that attributes get replicated to detail documents
   await assertQuerySizeEventually(
@@ -95,7 +97,7 @@ async function testReplicateAttributes(sut, t) {
   await t.pass();
 }
 
-async function testDeleteReferences(sut, t) {
+async function testDeleteReferences(sut, t, name) {
   // Create some docs referencing master doc
   const masterId = makeid();
   await db.collection('detail1').add({ masterId: masterId });
@@ -117,11 +119,13 @@ async function testDeleteReferences(sut, t) {
   setState({ snap: null, context: null });
   await wrapped(snap, { params: { masterId: masterId } });
 
-  // Assert pre-hook was called
-  const state = getState();
-  t.truthy(state.snap);
-  t.truthy(state.context);
-  t.is(state.context.params.masterId, masterId);
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.masterId, masterId);
+  }
 
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
@@ -199,16 +203,16 @@ async function testMaintainCount(sut, t) {
 }
 
 test('test error conditions', async t => {
-  t.throws(() => integrify({}), /Input must be rule or config/i);
-  t.throws(
-    () => integrify({ rule: 'UNKNOWN_RULE_4a4e261a2e37' }),
-    /Unknown rule/i
-  );
-  t.throws(() => require('./functions-bad-rules-file'), /Unknown rule/i);
-  t.throws(
-    () => require('./functions-absent-rules-file'),
-    /Rules file not found/i
-  );
+  t.throws(() => integrify({}), { message: /Input must be rule or config/i });
+  t.throws(() => integrify({ rule: 'UNKNOWN_RULE_4a4e261a2e37' }), {
+    message: /Unknown rule/i,
+  });
+  t.throws(() => require('./functions-bad-rules-file'), {
+    message: /Unknown rule/i,
+  });
+  t.throws(() => require('./functions-absent-rules-file'), {
+    message: /Rules file not found/i,
+  });
 
   t.pass();
 });
