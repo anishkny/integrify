@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/anishkny/integrify/compare/v2.2.2...v3.0.0) (2020-02-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **maintainCount:** MAINTAIN_COUNT rule now returns single onWrite trigger.
+Previously, it used to return two triggers; onCreate and onDelete.
+This should simplify usage.
+
+Before:
+
+[
+  module.exports.incrementFavoritesCount,
+  module.exports.decrementFavoritesCount,
+] = integrify({
+  rule: 'MAINTAIN_COUNT',
+  ...
+
+After:
+
+module.exports.maintainFavoritesCount = integrify({
+  rule: 'MAINTAIN_COUNT',
+  ...
+
+### Features
+
+* **maintainCount:** Convert to single onWrite trigger ([#36](https://github.com/anishkny/integrify/issues/36)) ([00bdc97](https://github.com/anishkny/integrify/commit/00bdc978b8663dd9d33cdd3e63299be6ef95bf94))
+
 ### [2.2.2](https://github.com/anishkny/integrify/compare/v2.2.1...v2.2.2) (2019-09-15)
 
 
