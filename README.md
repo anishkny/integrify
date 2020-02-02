@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/anishkny/integrify.svg?branch=master)](https://travis-ci.com/anishkny/integrify)
 [![Coverage Status](https://coveralls.io/repos/github/anishkny/integrify/badge.svg?branch=master)](https://coveralls.io/github/anishkny/integrify?branch=master)
 [![Greenkeeper badge](https://badges.greenkeeper.io/anishkny/integrify.svg)](https://greenkeeper.io/)
-[![Known Vulnerabilities](https://snyk.io/test/github/anishkny/integrify/badge.svg?targetFile=package.json)](https://snyk.io/test/github/anishkny/integrify?targetFile=package.json)
+[![Security](https://img.shields.io/badge/security-GitHub-blue)](https://github.com/anishkny/integrify/network/alerts)
 [![npm package](https://img.shields.io/npm/v/integrify.svg)](https://www.npmjs.com/package/integrify)
 [![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
 
