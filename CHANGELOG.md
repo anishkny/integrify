@@ -13,18 +13,22 @@ This should simplify usage.
 
 Before:
 
+```
 [
   module.exports.incrementFavoritesCount,
   module.exports.decrementFavoritesCount,
 ] = integrify({
   rule: 'MAINTAIN_COUNT',
   ...
+```
 
 After:
 
+```
 module.exports.maintainFavoritesCount = integrify({
   rule: 'MAINTAIN_COUNT',
   ...
+```
 
 ### Features
 
