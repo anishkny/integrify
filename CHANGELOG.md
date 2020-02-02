@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/anishkny/integrify/compare/v3.0.0...v3.0.1) (2020-02-02)
+
+
+### Docs
+
+* Add code fences ([#46](https://github.com/anishkny/integrify/issues/46)) ([e305039](https://github.com/anishkny/integrify/commit/e3050398d525ad574d77a20b768410249bf1b995))
+
+
+### Chores
+
+* **deps:** Bump ([#47](https://github.com/anishkny/integrify/issues/47)) ([575c15c](https://github.com/anishkny/integrify/commit/575c15c73755dc9765c8826619a277a500b0416f))
+
 ## [3.0.0](https://github.com/anishkny/integrify/compare/v2.2.2...v3.0.0) (2020-02-02)
 
 
