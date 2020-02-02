@@ -4,11 +4,11 @@ export interface DeleteReferencesRule extends Rule {
   source: {
     collection: string;
   };
-  targets: Array<{
+  targets: {
     collection: string;
     foreignKey: string;
     isCollectionGroup?: boolean;
-  }>;
+  }[];
   hooks?: {
     pre?: Function;
   };

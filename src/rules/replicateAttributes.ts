@@ -4,14 +4,14 @@ export interface ReplicateAttributesRule extends Rule {
   source: {
     collection: string;
   };
-  targets: Array<{
+  targets: {
     collection: string;
     foreignKey: string;
     attributeMapping: {
       [sourceAttribute: string]: string;
     };
     isCollectionGroup?: boolean;
-  }>;
+  }[];
   hooks?: {
     pre?: Function;
   };
