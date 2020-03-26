@@ -53,6 +53,7 @@ export function integrifyReplicateAttributes(
     .onUpdate((change, context) => {
       const masterId = context.params.masterId;
       const newValue = change.after.data();
+      const oldValue = change.before.data();
       console.log(
         `integrify: Detected update in [${rule.source.collection}], id [${masterId}], new value:`,
         newValue
@@ -68,7 +69,10 @@ export function integrifyReplicateAttributes(
       // Check if atleast one of the attributes to be replicated was changed
       let relevantUpdate = false;
       Object.keys(newValue).forEach(changedAttribute => {
-        if (trackedMasterAttributes[changedAttribute]) {
+        if (
+          trackedMasterAttributes[changedAttribute] &&
+          (newValue[changedAttribute] !== oldValue[changedAttribute])
+        ) {
           relevantUpdate = true;
         }
       });
@@ -95,7 +99,7 @@ export function integrifyReplicateAttributes(
         });
         console.log(
           `integrify: On collection ${
-            target.isCollectionGroup ? 'group ' : ''
+          target.isCollectionGroup ? 'group ' : ''
           }[${target.collection}], applying update:`,
           update
         );
@@ -116,9 +120,9 @@ export function integrifyReplicateAttributes(
               detailDocs.forEach(detailDoc => {
                 console.log(
                   `integrify: On collection ${
-                    target.isCollectionGroup ? 'group ' : ''
+                  target.isCollectionGroup ? 'group ' : ''
                   }[${target.collection}], id [${
-                    detailDoc.id
+                  detailDoc.id
                   }], applying update:`,
                   update
                 );
