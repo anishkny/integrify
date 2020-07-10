@@ -1,4 +1,9 @@
-import { Config, Rule } from '../common';
+import {
+  Config,
+  Rule,
+  replaceReferenceWithMasterId,
+  replaceReferenceWithFields,
+} from '../common';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -55,6 +60,20 @@ export function integrifyDeleteReferences(
             target.foreignKey
           }] matches [${masterId}]`
         );
+
+        // Replace masterId in target collection
+        target.collection = replaceReferenceWithMasterId(
+          target.collection,
+          masterId
+        );
+
+        // Replace the fields in the target collection
+        const { hasFields, targetCollection } = replaceReferenceWithFields(
+          snap.data(),
+          target.collection
+        );
+        target.collection = targetCollection;
+
         // Delete all docs in this target corresponding to deleted master doc
         let whereable = null;
         if (target.isCollectionGroup) {
@@ -62,6 +81,7 @@ export function integrifyDeleteReferences(
         } else {
           whereable = db.collection(target.collection);
         }
+
         promises.push(
           whereable
             .where(target.foreignKey, '==', masterId)

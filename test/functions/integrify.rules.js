@@ -46,6 +46,40 @@ module.exports = [
     ],
   },
   {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithMasterParam',
+    source: {
+      collection: 'master',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'masterId',
+      },
+      {
+        collection: 'somecoll/{masterId}/detail2',
+        foreignKey: 'masterId',
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithSnapshotFields',
+    source: {
+      collection: 'master',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'masterId',
+      },
+      {
+        collection: 'somecoll/{testId}/detail2',
+        foreignKey: 'masterId',
+      },
+    ],
+  },
+  {
     rule: 'MAINTAIN_COUNT',
     name: 'maintainFavoritesCount',
     source: {

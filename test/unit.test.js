@@ -13,11 +13,26 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
+async function clearFirestore() {
+  const collections = ['detail1', 'detail2', 'somecoll'];
+  for (const collection of collections) {
+    const { docs } = await admin
+      .firestore()
+      .collectionGroup(collection)
+      .get();
+    for (const doc of docs) {
+      doc.ref.delete();
+    }
+  }
+  await fft.cleanup();
+}
+
 let unsubscribe = null;
-test.after(() => {
+test.after(async () => {
   if (unsubscribe) {
     unsubscribe();
   }
+  await clearFirestore();
 });
 
 const testsuites = [
@@ -33,11 +48,19 @@ testsuites.forEach(testsuite => {
     t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
     t.truthy(sut.replicateMasterToDetail.run);
   });
-  test(`[${name}] test REPLICATE_ATTRIBUTES`, async t =>
+  test(`[${name}] test simple replicate attributes`, async t =>
     testReplicateAttributes(sut, t, name));
-  test(`[${name}] test DELETE_REFERENCES`, async t =>
+  test(`[${name}] test simple delete references`, async t =>
     testDeleteReferences(sut, t, name));
-  test(`[${name}] test MAINTAIN_COUNT`, async t => testMaintainCount(sut, t));
+  test(`[${name}] test simple maintain count`, async t =>
+    testMaintainCount(sut, t));
+
+  test(`[${name}] test delete with masterId in target reference`, async t =>
+    testDeleteParamReferences(sut, t, name));
+  test(`[${name}] test delete with snapshot fields in target reference`, async t =>
+    testDeleteSnapshotFieldReferences(sut, t, name));
+  test(`[${name}] test delete with missing snapshot fields in target reference`, async t =>
+    testDeleteMissingSnapshotFieldReferences(sut, t, name));
 });
 
 async function testReplicateAttributes(sut, t, name) {
@@ -139,6 +162,193 @@ async function testDeleteReferences(sut, t, name) {
       .collection('detail2')
       .where('masterId', '==', masterId),
     0
+  );
+
+  t.pass();
+}
+
+async function testDeleteParamReferences(sut, t, name) {
+  // Create some docs referencing master doc
+  const masterId = makeid();
+  await db.collection('detail1').add({
+    masterId: masterId,
+  });
+  const nestedDocRef = db.collection('somecoll').doc(masterId);
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    masterId: masterId,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(masterId)
+      .collection('detail2')
+      .where('masterId', '==', masterId),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
+  const wrapped = fft.wrap(sut.deleteReferencesWithMasterParam);
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      masterId: masterId,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.masterId, masterId);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('masterId', '==', masterId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(masterId)
+      .collection('detail2')
+      .where('masterId', '==', masterId),
+    0
+  );
+
+  t.pass();
+}
+
+async function testDeleteSnapshotFieldReferences(sut, t, name) {
+  // Create some docs referencing master doc
+  const masterId = makeid();
+  const testId = makeid();
+  await db.collection('detail1').add({
+    masterId: masterId,
+  });
+  const nestedDocRef = db.collection('somecoll').doc(testId);
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    masterId: masterId,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('masterId', '==', masterId),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot(
+    {
+      testId,
+    },
+    `master/${masterId}`
+  );
+  const wrapped = fft.wrap(sut.deleteReferencesWithSnapshotFields);
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      masterId: masterId,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.masterId, masterId);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('masterId', '==', masterId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('masterId', '==', masterId),
+    0
+  );
+
+  t.pass();
+}
+
+async function testDeleteMissingSnapshotFieldReferences(sut, t, name) {
+  // Create some docs referencing master doc
+  const masterId = makeid();
+  const testId = makeid();
+  await db.collection('detail1').add({
+    masterId: masterId,
+  });
+  const nestedDocRef = db.collection('somecoll').doc(testId);
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    masterId: masterId,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('masterId', '==', masterId),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
+  const wrapped = fft.wrap(sut.deleteReferencesWithSnapshotFields);
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      masterId: masterId,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.masterId, masterId);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('masterId', '==', masterId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('masterId', '==', masterId),
+    1
   );
 
   t.pass();

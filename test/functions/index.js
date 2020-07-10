@@ -62,6 +62,56 @@ module.exports.deleteReferencesToMaster = integrify({
   },
 });
 
+module.exports.deleteReferencesWithMasterParam = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'masterId',
+    },
+    {
+      collection: 'somecoll/{masterId}/detail2',
+      foreignKey: 'masterId',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.deleteReferencesWithSnapshotFields = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'masterId',
+    },
+    {
+      collection: 'somecoll/{testId}/detail2',
+      foreignKey: 'masterId',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
 module.exports.maintainFavoritesCount = integrify({
   rule: 'MAINTAIN_COUNT',
   source: {
