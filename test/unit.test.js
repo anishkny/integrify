@@ -51,13 +51,13 @@ testsuites.forEach(testsuite => {
     t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
     t.truthy(sut.replicateMasterToDetail.run);
   });
-  test(`[${name}] test basic variable swap`, async t =>
+  test(`[${name}] test target collection parameter swap`, async t =>
     testVariableSwap(sut, t, name));
-  test(`[${name}] test simple replicate attributes`, async t =>
+  test(`[${name}] test replicate attributes`, async t =>
     testReplicateAttributes(sut, t, name));
-  test(`[${name}] test simple delete references`, async t =>
+  test(`[${name}] test delete references`, async t =>
     testDeleteReferences(sut, t, name));
-  test(`[${name}] test simple maintain count`, async t =>
+  test(`[${name}] test maintain count`, async t =>
     testMaintainCount(sut, t));
 
   test(`[${name}] test delete with masterId in target reference`, async t =>
