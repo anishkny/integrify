@@ -57,8 +57,7 @@ testsuites.forEach(testsuite => {
     testReplicateAttributes(sut, t, name));
   test(`[${name}] test delete references`, async t =>
     testDeleteReferences(sut, t, name));
-  test(`[${name}] test maintain count`, async t =>
-    testMaintainCount(sut, t));
+  test(`[${name}] test maintain count`, async t => testMaintainCount(sut, t));
 
   test(`[${name}] test delete with masterId in target reference`, async t =>
     testDeleteParamReferences(sut, t, name));
