@@ -18,33 +18,26 @@ export function isConfig(arg: Rule | Config): arg is Config {
   return (arg as Config).config !== undefined;
 }
 
-export function replaceReferenceWithMasterId(
-  targetRef: string,
-  masterId: string
-): string {
-  return targetRef.replace('{masterId}', masterId);
-}
-
 export function replaceReferenceWithFields(
   fields: FirebaseFirestore.DocumentData,
   targetCollection: string
 ): { hasFields: boolean; targetCollection: string } {
-  const pRegex = /\{([^)]+)\}/g;
-  const matches = pRegex.exec(targetCollection);
+  const pRegex = /([\$][^\/]*|$)/g;
+  const matches = targetCollection.match(pRegex); // Using global flag always returns an empty string at the end
+  matches.pop();
+
   let hasFields = false;
-  if (matches && fields) {
+  if (matches.length > 0 && fields) {
     hasFields = true;
-    matches.forEach(() => {
-      const field = fields[matches[1]];
+    matches.forEach(match => {
+      const field = fields[match.replace('$', '')];
       if (field) {
         console.log(
-          `integrify: Detected dynamic reference, replacing [${matches[0]}] with [${field}]`
+          `integrify: Detected dynamic reference, replacing [${match}] with [${field}]`
         );
-        targetCollection = targetCollection.replace(matches[0], field);
+        targetCollection = targetCollection.replace(match, field);
       } else {
-        throw new Error(
-          `integrify: Missing dynamic reference: [${matches[0]}]`
-        );
+        throw new Error(`integrify: Missing dynamic reference: [${match}]`);
       }
     });
   }

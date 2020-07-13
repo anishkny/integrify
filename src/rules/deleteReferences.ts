@@ -1,9 +1,4 @@
-import {
-  Config,
-  Rule,
-  replaceReferenceWithMasterId,
-  replaceReferenceWithFields,
-} from '../common';
+import { Config, Rule, replaceReferenceWithFields } from '../common';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -61,18 +56,23 @@ export function integrifyDeleteReferences(
           }] matches [${masterId}]`
         );
 
-        // Replace masterId in target collection
-        target.collection = replaceReferenceWithMasterId(
-          target.collection,
-          masterId
-        );
+        try {
+          // Replace the context.params in the target collection
+          const paramSwap = replaceReferenceWithFields(
+            context.params,
+            target.collection
+          );
+          target.collection = paramSwap.targetCollection;
 
-        // Replace the fields in the target collection
-        const { hasFields, targetCollection } = replaceReferenceWithFields(
-          snap.data(),
-          target.collection
-        );
-        target.collection = targetCollection;
+          // Replace the snapshot fields in the target collection
+          const fieldSwap = replaceReferenceWithFields(
+            snap.data(),
+            target.collection
+          );
+          target.collection = fieldSwap.targetCollection;
+        } catch (error) {
+          throw new Error(error);
+        }
 
         // Delete all docs in this target corresponding to deleted master doc
         let whereable = null;
