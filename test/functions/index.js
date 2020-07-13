@@ -73,7 +73,7 @@ module.exports.deleteReferencesWithMasterParam = integrify({
       foreignKey: 'masterId',
     },
     {
-      collection: 'somecoll/{masterId}/detail2',
+      collection: 'somecoll/$masterId/detail2',
       foreignKey: 'masterId',
     },
   ],
@@ -98,7 +98,32 @@ module.exports.deleteReferencesWithSnapshotFields = integrify({
       foreignKey: 'masterId',
     },
     {
-      collection: 'somecoll/{testId}/detail2',
+      collection: 'somecoll/$testId/detail2',
+      foreignKey: 'masterId',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.deleteReferencesWithMissingFields = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'masterId',
+    },
+    {
+      collection: 'somecoll/$testId/detail2',
       foreignKey: 'masterId',
     },
   ],

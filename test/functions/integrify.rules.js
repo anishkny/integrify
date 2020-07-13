@@ -57,7 +57,7 @@ module.exports = [
         foreignKey: 'masterId',
       },
       {
-        collection: 'somecoll/{masterId}/detail2',
+        collection: 'somecoll/$masterId/detail2',
         foreignKey: 'masterId',
       },
     ],
@@ -74,7 +74,24 @@ module.exports = [
         foreignKey: 'masterId',
       },
       {
-        collection: 'somecoll/{testId}/detail2',
+        collection: 'somecoll/$testId/detail2',
+        foreignKey: 'masterId',
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithMissingFields',
+    source: {
+      collection: 'master',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'masterId',
+      },
+      {
+        collection: 'somecoll/$testId/detail2',
         foreignKey: 'masterId',
       },
     ],
