@@ -31,7 +31,7 @@ module.exports = [
     rule: 'DELETE_REFERENCES',
     name: 'deleteReferencesToMaster',
     source: {
-      collection: 'master',
+      collection: 'master/{masterId}',
     },
     targets: [
       {
@@ -49,16 +49,16 @@ module.exports = [
     rule: 'DELETE_REFERENCES',
     name: 'deleteReferencesWithMasterParam',
     source: {
-      collection: 'master',
+      collection: 'master/{primaryKey}',
     },
     targets: [
       {
         collection: 'detail1',
-        foreignKey: 'masterId',
+        foreignKey: 'primaryKey',
       },
       {
-        collection: 'somecoll/$masterId/detail2',
-        foreignKey: 'masterId',
+        collection: 'somecoll/$primaryKey/detail2',
+        foreignKey: 'primaryKey',
       },
     ],
   },
@@ -66,16 +66,29 @@ module.exports = [
     rule: 'DELETE_REFERENCES',
     name: 'deleteReferencesWithSnapshotFields',
     source: {
+      collection: 'master/{anotherId}',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'anotherId',
+      },
+      {
+        collection: 'somecoll/$testId/detail2',
+        foreignKey: 'anotherId',
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithMissingKey',
+    source: {
       collection: 'master',
     },
     targets: [
       {
         collection: 'detail1',
-        foreignKey: 'masterId',
-      },
-      {
-        collection: 'somecoll/$testId/detail2',
-        foreignKey: 'masterId',
+        foreignKey: 'randomId',
       },
     ],
   },
@@ -83,16 +96,16 @@ module.exports = [
     rule: 'DELETE_REFERENCES',
     name: 'deleteReferencesWithMissingFields',
     source: {
-      collection: 'master',
+      collection: 'master/{randomId}',
     },
     targets: [
       {
         collection: 'detail1',
-        foreignKey: 'masterId',
+        foreignKey: 'randomId',
       },
       {
         collection: 'somecoll/$testId/detail2',
-        foreignKey: 'masterId',
+        foreignKey: 'randomId',
       },
     ],
   },

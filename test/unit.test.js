@@ -7,7 +7,7 @@ const fft = require('firebase-functions-test')(
 );
 const test = require('ava');
 const { integrify } = require('../lib');
-const { replaceReferenceWithFields } = require('../lib/common');
+const { replaceReferencesWith, getPrimaryKey } = require('../lib/common');
 const { getState, setState } = require('./functions/stateMachine');
 
 const admin = require('firebase-admin');
@@ -51,8 +51,10 @@ testsuites.forEach(testsuite => {
     t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
     t.truthy(sut.replicateMasterToDetail.run);
   });
+  test(`[${name}] test get primary key`, async t =>
+    testPrimaryKey(sut, t, name));
   test(`[${name}] test target collection parameter swap`, async t =>
-    testVariableSwap(sut, t, name));
+    testTargetVariableSwap(sut, t, name));
   test(`[${name}] test replicate attributes`, async t =>
     testReplicateAttributes(sut, t, name));
   test(`[${name}] test delete references`, async t =>
@@ -63,19 +65,44 @@ testsuites.forEach(testsuite => {
     testDeleteParamReferences(sut, t, name));
   test(`[${name}] test delete with snapshot fields in target reference`, async t =>
     testDeleteSnapshotFieldReferences(sut, t, name));
+  test(`[${name}] test delete with missing primary key in source reference`, async t =>
+    testDeleteMissingSourceCollectionKey(sut, t, name));
   test(`[${name}] test delete with missing snapshot fields in target reference`, async t =>
     testDeleteMissingFieldsReferences(sut, t, name));
 });
 
-async function testVariableSwap(sut, t, name) {
+async function testPrimaryKey(sut, t, name) {
+  // Test one key
+  let targetCollection = 'collection/{collectionId}';
+  let primaryKey = getPrimaryKey(targetCollection);
+
+  t.is(primaryKey, 'collectionId');
+
+  // Test two keys
+  targetCollection = 'collection/{collectionId}/some_detail/{detailId}';
+  primaryKey = getPrimaryKey(targetCollection);
+  t.is(primaryKey, 'detailId');
+
+  // Test missing key
+  targetCollection = 'collection';
+
+  const error = t.throws(() => {
+    getPrimaryKey(targetCollection);
+  });
+  t.is(error.message, 'integrify: Missing a primary key in the source');
+
+  await t.pass();
+}
+
+async function testTargetVariableSwap(sut, t, name) {
   // test no fields
   let collectionId = makeid();
   let targetCollection = 'collection';
-  let doc = {
+  let documentData = {
     collectionId,
   };
 
-  let result = replaceReferenceWithFields(doc, targetCollection);
+  let result = replaceReferencesWith(documentData, targetCollection);
 
   t.false(result.hasFields);
   t.is(result.targetCollection, 'collection');
@@ -83,7 +110,7 @@ async function testVariableSwap(sut, t, name) {
   // Test one field
   targetCollection = 'collection/$collectionId/some_detail';
 
-  result = replaceReferenceWithFields(doc, targetCollection);
+  result = replaceReferencesWith(documentData, targetCollection);
 
   t.true(result.hasFields);
   t.is(result.targetCollection, `collection/${collectionId}/some_detail`);
@@ -92,13 +119,13 @@ async function testVariableSwap(sut, t, name) {
   const testId = makeid();
   const userId = makeid();
   targetCollection = 'collection/$testId/some_detail/$userId';
-  doc = {
+  documentData = {
     collectionId,
     testId,
     userId,
   };
 
-  result = replaceReferenceWithFields(doc, targetCollection);
+  result = replaceReferencesWith(documentData, targetCollection);
 
   t.true(result.hasFields);
   t.is(result.targetCollection, `collection/${testId}/some_detail/${userId}`);
@@ -107,7 +134,7 @@ async function testVariableSwap(sut, t, name) {
   targetCollection = 'collection/$collectionId/some_detail';
 
   const error = t.throws(() => {
-    replaceReferenceWithFields({}, targetCollection);
+    replaceReferencesWith({}, targetCollection);
   });
   t.is(error.message, 'integrify: Missing dynamic reference: [$collectionId]');
 
@@ -255,28 +282,28 @@ async function testDeleteReferences(sut, t, name) {
 
 async function testDeleteParamReferences(sut, t, name) {
   // Create some docs referencing master doc
-  const masterId = makeid();
+  const primaryKey = makeid();
   await db.collection('detail1').add({
-    masterId: masterId,
+    primaryKey: primaryKey,
   });
-  const nestedDocRef = db.collection('somecoll').doc(masterId);
+  const nestedDocRef = db.collection('somecoll').doc(primaryKey);
   await nestedDocRef.set({
     x: 1,
   });
   await nestedDocRef.collection('detail2').add({
-    masterId: masterId,
+    primaryKey: primaryKey,
   });
   await assertQuerySizeEventually(
     db
       .collection('somecoll')
-      .doc(masterId)
+      .doc(primaryKey)
       .collection('detail2')
-      .where('masterId', '==', masterId),
+      .where('primaryKey', '==', primaryKey),
     1
   );
 
   // Trigger function to delete references
-  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${primaryKey}`);
   const wrapped = fft.wrap(sut.deleteReferencesWithMasterParam);
   setState({
     snap: null,
@@ -284,7 +311,7 @@ async function testDeleteParamReferences(sut, t, name) {
   });
   await wrapped(snap, {
     params: {
-      masterId: masterId,
+      primaryKey: primaryKey,
     },
   });
 
@@ -293,20 +320,20 @@ async function testDeleteParamReferences(sut, t, name) {
     const state = getState();
     t.truthy(state.snap);
     t.truthy(state.context);
-    t.is(state.context.params.masterId, masterId);
+    t.is(state.context.params.primaryKey, primaryKey);
   }
 
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
-    db.collection('detail1').where('masterId', '==', masterId),
+    db.collection('detail1').where('primaryKey', '==', primaryKey),
     0
   );
   await assertQuerySizeEventually(
     db
       .collection('somecoll')
-      .doc(masterId)
+      .doc(primaryKey)
       .collection('detail2')
-      .where('masterId', '==', masterId),
+      .where('primaryKey', '==', primaryKey),
     0
   );
 
@@ -315,24 +342,24 @@ async function testDeleteParamReferences(sut, t, name) {
 
 async function testDeleteSnapshotFieldReferences(sut, t, name) {
   // Create some docs referencing master doc
-  const masterId = makeid();
+  const anotherId = makeid();
   const testId = makeid();
   await db.collection('detail1').add({
-    masterId: masterId,
+    anotherId: anotherId,
   });
   const nestedDocRef = db.collection('somecoll').doc(testId);
   await nestedDocRef.set({
     x: 1,
   });
   await nestedDocRef.collection('detail2').add({
-    masterId: masterId,
+    anotherId: anotherId,
   });
   await assertQuerySizeEventually(
     db
       .collection('somecoll')
       .doc(testId)
       .collection('detail2')
-      .where('masterId', '==', masterId),
+      .where('anotherId', '==', anotherId),
     1
   );
 
@@ -341,7 +368,7 @@ async function testDeleteSnapshotFieldReferences(sut, t, name) {
     {
       testId,
     },
-    `master/${masterId}`
+    `master/${anotherId}`
   );
   const wrapped = fft.wrap(sut.deleteReferencesWithSnapshotFields);
   setState({
@@ -350,7 +377,7 @@ async function testDeleteSnapshotFieldReferences(sut, t, name) {
   });
   await wrapped(snap, {
     params: {
-      masterId: masterId,
+      anotherId: anotherId,
       testId: testId,
     },
   });
@@ -360,12 +387,12 @@ async function testDeleteSnapshotFieldReferences(sut, t, name) {
     const state = getState();
     t.truthy(state.snap);
     t.truthy(state.context);
-    t.is(state.context.params.masterId, masterId);
+    t.is(state.context.params.anotherId, anotherId);
   }
 
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
-    db.collection('detail1').where('masterId', '==', masterId),
+    db.collection('detail1').where('anotherId', '==', anotherId),
     0
   );
   await assertQuerySizeEventually(
@@ -373,8 +400,49 @@ async function testDeleteSnapshotFieldReferences(sut, t, name) {
       .collection('somecoll')
       .doc(testId)
       .collection('detail2')
-      .where('masterId', '==', masterId),
+      .where('anotherId', '==', anotherId),
     0
+  );
+
+  t.pass();
+}
+
+async function testDeleteMissingSourceCollectionKey(sut, t, name) {
+  // Create some docs referencing master doc
+  const randomId = makeid();
+  await db.collection('detail1').add({
+    randomId: randomId,
+  });
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${randomId}`);
+  const wrapped = fft.wrap(sut.deleteReferencesWithMissingKey);
+  setState({
+    snap: null,
+    context: null,
+  });
+
+  const error = await t.throwsAsync(async () => {
+    await wrapped(snap, {
+      params: {
+        randomId: randomId,
+      },
+    });
+  });
+
+  t.is(error.message, 'integrify: Missing a primary key in the source');
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.is(state.snap, null);
+    t.is(state.context, null);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('randomId', '==', randomId),
+    1
   );
 
   t.pass();
@@ -382,29 +450,29 @@ async function testDeleteSnapshotFieldReferences(sut, t, name) {
 
 async function testDeleteMissingFieldsReferences(sut, t, name) {
   // Create some docs referencing master doc
-  const masterId = makeid();
+  const randomId = makeid();
   const testId = makeid();
   await db.collection('detail1').add({
-    masterId: masterId,
+    randomId: randomId,
   });
   const nestedDocRef = db.collection('somecoll').doc(testId);
   await nestedDocRef.set({
     x: 1,
   });
   await nestedDocRef.collection('detail2').add({
-    masterId: masterId,
+    randomId: randomId,
   });
   await assertQuerySizeEventually(
     db
       .collection('somecoll')
       .doc(testId)
       .collection('detail2')
-      .where('masterId', '==', masterId),
+      .where('randomId', '==', randomId),
     1
   );
 
   // Trigger function to delete references
-  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${randomId}`);
   const wrapped = fft.wrap(sut.deleteReferencesWithMissingFields);
   setState({
     snap: null,
@@ -414,24 +482,24 @@ async function testDeleteMissingFieldsReferences(sut, t, name) {
   const error = await t.throwsAsync(async () => {
     await wrapped(snap, {
       params: {
-        masterId: masterId,
+        randomId: randomId,
       },
     });
   });
 
-  t.is(error.message, 'Error: integrify: Missing dynamic reference: [$testId]');
+  t.is(error.message, 'integrify: Missing dynamic reference: [$testId]');
 
   // Assert pre-hook was called (only for rules-in-situ)
   if (name === 'rules-in-situ') {
     const state = getState();
     t.truthy(state.snap);
     t.truthy(state.context);
-    t.is(state.context.params.masterId, masterId);
+    t.is(state.context.params.randomId, randomId);
   }
 
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
-    db.collection('detail1').where('masterId', '==', masterId),
+    db.collection('detail1').where('randomId', '==', randomId),
     0
   );
   await assertQuerySizeEventually(
@@ -439,7 +507,7 @@ async function testDeleteMissingFieldsReferences(sut, t, name) {
       .collection('somecoll')
       .doc(testId)
       .collection('detail2')
-      .where('masterId', '==', masterId),
+      .where('randomId', '==', randomId),
     1
   );
 
