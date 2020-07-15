@@ -1,4 +1,4 @@
-import { Config, Rule, replaceReferenceWithFields } from '../common';
+import { Config, Rule, replaceReferencesWith, getPrimaryKey } from '../common';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -31,11 +31,12 @@ export function integrifyDeleteReferences(
   );
 
   return functions.firestore
-    .document(`${rule.source.collection}/{masterId}`)
+    .document(rule.source.collection)
     .onDelete((snap, context) => {
-      const masterId = context.params.masterId;
+      // Get the last {...} in the source collection
+      const primaryKey = context.params[getPrimaryKey(rule.source.collection)];
       console.log(
-        `integrify: Detected delete in [${rule.source.collection}], id [${masterId}]`
+        `integrify: Detected delete in [${rule.source.collection}], id [${primaryKey}]`
       );
 
       // Call "pre" hook if defined
@@ -53,26 +54,21 @@ export function integrifyDeleteReferences(
             target.isCollectionGroup ? 'group ' : ''
           }[${target.collection}] where foreign key [${
             target.foreignKey
-          }] matches [${masterId}]`
+          }] matches [${primaryKey}]`
         );
 
-        try {
-          // Replace the context.params in the target collection
-          const paramSwap = replaceReferenceWithFields(
-            context.params,
-            target.collection
-          );
-          target.collection = paramSwap.targetCollection;
+        // Replace the context.params in the target collection
+        const paramSwap = replaceReferencesWith(
+          context.params,
+          target.collection
+        );
 
-          // Replace the snapshot fields in the target collection
-          const fieldSwap = replaceReferenceWithFields(
-            snap.data(),
-            target.collection
-          );
-          target.collection = fieldSwap.targetCollection;
-        } catch (error) {
-          throw new Error(error);
-        }
+        // Replace the snapshot fields in the target collection
+        const fieldSwap = replaceReferencesWith(
+          snap.data(),
+          paramSwap.targetCollection
+        );
+        target.collection = fieldSwap.targetCollection;
 
         // Delete all docs in this target corresponding to deleted master doc
         let whereable = null;
@@ -84,7 +80,7 @@ export function integrifyDeleteReferences(
 
         promises.push(
           whereable
-            .where(target.foreignKey, '==', masterId)
+            .where(target.foreignKey, '==', primaryKey)
             .get()
             .then(querySnap => {
               querySnap.forEach(doc => {
