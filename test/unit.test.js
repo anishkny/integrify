@@ -1,10 +1,13 @@
 const { credentials, makeid, sleep } = require('./util');
 const fft = require('firebase-functions-test')(
-  { projectId: credentials.projectId },
+  {
+    projectId: credentials.projectId,
+  },
   credentials.serviceAccountKeyFile
 );
 const test = require('ava');
 const { integrify } = require('../lib');
+const { replaceReferencesWith, getPrimaryKey } = require('../lib/common');
 const { getState, setState } = require('./functions/stateMachine');
 
 const admin = require('firebase-admin');
@@ -13,11 +16,26 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
+async function clearFirestore() {
+  const collections = ['detail1', 'detail2', 'somecoll'];
+  for (const collection of collections) {
+    const { docs } = await admin
+      .firestore()
+      .collectionGroup(collection)
+      .get();
+    for (const doc of docs) {
+      doc.ref.delete();
+    }
+  }
+  await fft.cleanup();
+}
+
 let unsubscribe = null;
-test.after(() => {
+test.after(async () => {
   if (unsubscribe) {
     unsubscribe();
   }
+  await clearFirestore();
 });
 
 const testsuites = [
@@ -33,20 +51,109 @@ testsuites.forEach(testsuite => {
     t.true(sut.replicateMasterToDetail.name === 'cloudFunction');
     t.truthy(sut.replicateMasterToDetail.run);
   });
-  test(`[${name}] test REPLICATE_ATTRIBUTES`, async t =>
+  test(`[${name}] test get primary key`, async t =>
+    testPrimaryKey(sut, t, name));
+  test(`[${name}] test target collection parameter swap`, async t =>
+    testTargetVariableSwap(sut, t, name));
+  test(`[${name}] test replicate attributes`, async t =>
     testReplicateAttributes(sut, t, name));
-  test(`[${name}] test DELETE_REFERENCES`, async t =>
+  test(`[${name}] test delete references`, async t =>
     testDeleteReferences(sut, t, name));
-  test(`[${name}] test MAINTAIN_COUNT`, async t => testMaintainCount(sut, t));
+  test(`[${name}] test maintain count`, async t => testMaintainCount(sut, t));
+
+  test(`[${name}] test delete with masterId in target reference`, async t =>
+    testDeleteParamReferences(sut, t, name));
+  test(`[${name}] test delete with snapshot fields in target reference`, async t =>
+    testDeleteSnapshotFieldReferences(sut, t, name));
+  test(`[${name}] test delete with missing primary key in source reference`, async t =>
+    testDeleteMissingSourceCollectionKey(sut, t, name));
+  test(`[${name}] test delete with missing snapshot fields in target reference`, async t =>
+    testDeleteMissingFieldsReferences(sut, t, name));
 });
+
+async function testPrimaryKey(sut, t, name) {
+  // Test one key
+  let targetCollection = 'collection/{collectionId}';
+  let result = getPrimaryKey(targetCollection);
+
+  t.true(result.hasPrimaryKey);
+  t.is(result.primaryKey, 'collectionId');
+
+  // Test two keys
+  targetCollection = 'collection/{collectionId}/some_detail/{detailId}';
+  result = getPrimaryKey(targetCollection);
+  t.true(result.hasPrimaryKey);
+  t.is(result.primaryKey, 'detailId');
+
+  // Test missing key
+  targetCollection = 'collection';
+  result = getPrimaryKey(targetCollection);
+  t.false(result.hasPrimaryKey);
+  t.is(result.primaryKey, 'masterId');
+
+  await t.pass();
+}
+
+async function testTargetVariableSwap(sut, t, name) {
+  // test no fields
+  let collectionId = makeid();
+  let targetCollection = 'collection';
+  let documentData = {
+    collectionId,
+  };
+
+  let result = replaceReferencesWith(documentData, targetCollection);
+
+  t.false(result.hasFields);
+  t.is(result.targetCollection, 'collection');
+
+  // Test one field
+  targetCollection = 'collection/$collectionId/some_detail';
+
+  result = replaceReferencesWith(documentData, targetCollection);
+
+  t.true(result.hasFields);
+  t.is(result.targetCollection, `collection/${collectionId}/some_detail`);
+
+  // Test multiple fields
+  const testId = makeid();
+  const userId = makeid();
+  targetCollection = 'collection/$testId/some_detail/$userId';
+  documentData = {
+    collectionId,
+    testId,
+    userId,
+  };
+
+  result = replaceReferencesWith(documentData, targetCollection);
+
+  t.true(result.hasFields);
+  t.is(result.targetCollection, `collection/${testId}/some_detail/${userId}`);
+
+  // Test missing field
+  targetCollection = 'collection/$collectionId/some_detail';
+
+  const error = t.throws(() => {
+    replaceReferencesWith({}, targetCollection);
+  });
+  t.is(error.message, 'integrify: Missing dynamic reference: [$collectionId]');
+
+  await t.pass();
+}
 
 async function testReplicateAttributes(sut, t, name) {
   // Add a couple of detail documents to follow master
   const masterId = makeid();
-  await db.collection('detail1').add({ masterId: masterId });
+  await db.collection('detail1').add({
+    masterId: masterId,
+  });
   const nestedDocRef = db.collection('somecoll').doc('somedoc');
-  await nestedDocRef.set({ x: 1 });
-  await nestedDocRef.collection('detail2').add({ masterId: masterId });
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    masterId: masterId,
+  });
 
   // Call trigger to replicate attributes from master
   const beforeSnap = fft.firestore.makeDocumentSnapshot(
@@ -54,13 +161,23 @@ async function testReplicateAttributes(sut, t, name) {
     `master/${masterId}`
   );
   const afterSnap = fft.firestore.makeDocumentSnapshot(
-    { masterField1: 'after1', masterField3: 'after3' },
+    {
+      masterField1: 'after1',
+      masterField3: 'after3',
+    },
     `master/${masterId}`
   );
   const change = fft.makeChange(beforeSnap, afterSnap);
   const wrapped = fft.wrap(sut.replicateMasterToDetail);
-  setState({ change: null, context: null });
-  await wrapped(change, { params: { masterId: masterId } });
+  setState({
+    change: null,
+    context: null,
+  });
+  await wrapped(change, {
+    params: {
+      masterId: masterId,
+    },
+  });
 
   // Assert pre-hook was called (only for rules-in-situ)
   if (name === 'rules-in-situ') {
@@ -88,11 +205,17 @@ async function testReplicateAttributes(sut, t, name) {
 
   // Assert irrelevant update is safely ignored
   const irrelevantAfterSnap = fft.firestore.makeDocumentSnapshot(
-    { masterFieldIrrelevant: 'whatever' },
+    {
+      masterFieldIrrelevant: 'whatever',
+    },
     `master/${masterId}`
   );
   const irreleventChange = fft.makeChange(beforeSnap, irrelevantAfterSnap);
-  await wrapped(irreleventChange, { params: { masterId: masterId } });
+  await wrapped(irreleventChange, {
+    params: {
+      masterId: masterId,
+    },
+  });
 
   await t.pass();
 }
@@ -100,10 +223,16 @@ async function testReplicateAttributes(sut, t, name) {
 async function testDeleteReferences(sut, t, name) {
   // Create some docs referencing master doc
   const masterId = makeid();
-  await db.collection('detail1').add({ masterId: masterId });
+  await db.collection('detail1').add({
+    masterId: masterId,
+  });
   const nestedDocRef = db.collection('somecoll').doc('somedoc');
-  await nestedDocRef.set({ x: 1 });
-  await nestedDocRef.collection('detail2').add({ masterId: masterId });
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    masterId: masterId,
+  });
   await assertQuerySizeEventually(
     db
       .collection('somecoll')
@@ -116,8 +245,15 @@ async function testDeleteReferences(sut, t, name) {
   // Trigger function to delete references
   const snap = fft.firestore.makeDocumentSnapshot({}, `master/${masterId}`);
   const wrapped = fft.wrap(sut.deleteReferencesToMaster);
-  setState({ snap: null, context: null });
-  await wrapped(snap, { params: { masterId: masterId } });
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      masterId: masterId,
+    },
+  });
 
   // Assert pre-hook was called (only for rules-in-situ)
   if (name === 'rules-in-situ') {
@@ -144,13 +280,252 @@ async function testDeleteReferences(sut, t, name) {
   t.pass();
 }
 
+async function testDeleteParamReferences(sut, t, name) {
+  // Create some docs referencing master doc
+  const primaryKey = makeid();
+  await db.collection('detail1').add({
+    primaryKey: primaryKey,
+  });
+  const nestedDocRef = db.collection('somecoll').doc(primaryKey);
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    primaryKey: primaryKey,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(primaryKey)
+      .collection('detail2')
+      .where('primaryKey', '==', primaryKey),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${primaryKey}`);
+  const wrapped = fft.wrap(sut.deleteReferencesWithMasterParam);
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      primaryKey: primaryKey,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.primaryKey, primaryKey);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('primaryKey', '==', primaryKey),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(primaryKey)
+      .collection('detail2')
+      .where('primaryKey', '==', primaryKey),
+    0
+  );
+
+  t.pass();
+}
+
+async function testDeleteSnapshotFieldReferences(sut, t, name) {
+  // Create some docs referencing master doc
+  const anotherId = makeid();
+  const testId = makeid();
+  await db.collection('detail1').add({
+    anotherId: anotherId,
+  });
+  const nestedDocRef = db.collection('somecoll').doc(testId);
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    anotherId: anotherId,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('anotherId', '==', anotherId),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot(
+    {
+      testId,
+    },
+    `master/${anotherId}`
+  );
+  const wrapped = fft.wrap(sut.deleteReferencesWithSnapshotFields);
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      anotherId: anotherId,
+      testId: testId,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.anotherId, anotherId);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('anotherId', '==', anotherId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('anotherId', '==', anotherId),
+    0
+  );
+
+  t.pass();
+}
+
+async function testDeleteMissingSourceCollectionKey(sut, t, name) {
+  // Create some docs referencing master doc
+  const randomId = makeid();
+  await db.collection('detail1').add({
+    randomId: randomId,
+  });
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${randomId}`);
+  const wrapped = fft.wrap(sut.deleteReferencesWithMissingKey);
+  setState({
+    snap: null,
+    context: null,
+  });
+
+  const error = await t.throwsAsync(async () => {
+    await wrapped(snap, {
+      params: {
+        randomId: randomId,
+      },
+    });
+  });
+
+  t.is(
+    error.message,
+    'integrify: Missing a primary key [masterId] in the source params'
+  );
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.is(state.snap, null);
+    t.is(state.context, null);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('randomId', '==', randomId),
+    1
+  );
+
+  t.pass();
+}
+
+async function testDeleteMissingFieldsReferences(sut, t, name) {
+  // Create some docs referencing master doc
+  const randomId = makeid();
+  const testId = makeid();
+  await db.collection('detail1').add({
+    randomId: randomId,
+  });
+  const nestedDocRef = db.collection('somecoll').doc(testId);
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    randomId: randomId,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('randomId', '==', randomId),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${randomId}`);
+  const wrapped = fft.wrap(sut.deleteReferencesWithMissingFields);
+  setState({
+    snap: null,
+    context: null,
+  });
+
+  const error = await t.throwsAsync(async () => {
+    await wrapped(snap, {
+      params: {
+        randomId: randomId,
+      },
+    });
+  });
+
+  t.is(error.message, 'integrify: Missing dynamic reference: [$testId]');
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.randomId, randomId);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db.collection('detail1').where('randomId', '==', randomId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('randomId', '==', randomId),
+    1
+  );
+
+  t.pass();
+}
+
 async function testMaintainCount(sut, t) {
   // Create an article to be favorited
   const articleId = makeid();
   await db
     .collection('articles')
     .doc(articleId)
-    .set({ favoritesCount: 0 });
+    .set({
+      favoritesCount: 0,
+    });
 
   // Favorite the article a few times
   const NUM_TIMES_TO_FAVORITE = 5;
@@ -158,7 +533,9 @@ async function testMaintainCount(sut, t) {
   const promises = [];
   const emptySnap = fft.firestore.makeDocumentSnapshot({});
   const snap = fft.firestore.makeDocumentSnapshot(
-    { articleId: articleId },
+    {
+      articleId: articleId,
+    },
     `favorites/${makeid()}`
   );
   for (let i = 1; i <= NUM_TIMES_TO_FAVORITE; ++i) {
@@ -203,10 +580,18 @@ async function testMaintainCount(sut, t) {
 }
 
 test('test error conditions', async t => {
-  t.throws(() => integrify({}), { message: /Input must be rule or config/i });
-  t.throws(() => integrify({ rule: 'UNKNOWN_RULE_4a4e261a2e37' }), {
-    message: /Unknown rule/i,
+  t.throws(() => integrify({}), {
+    message: /Input must be rule or config/i,
   });
+  t.throws(
+    () =>
+      integrify({
+        rule: 'UNKNOWN_RULE_4a4e261a2e37',
+      }),
+    {
+      message: /Unknown rule/i,
+    }
+  );
   t.throws(() => require('./functions-bad-rules-file'), {
     message: /Unknown rule/i,
   });

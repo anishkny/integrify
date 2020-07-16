@@ -31,7 +31,7 @@ module.exports = [
     rule: 'DELETE_REFERENCES',
     name: 'deleteReferencesToMaster',
     source: {
-      collection: 'master',
+      collection: 'master/{masterId}',
     },
     targets: [
       {
@@ -42,6 +42,70 @@ module.exports = [
         collection: 'detail2',
         foreignKey: 'masterId',
         isCollectionGroup: true,
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithMasterParam',
+    source: {
+      collection: 'master/{primaryKey}',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'primaryKey',
+      },
+      {
+        collection: 'somecoll/$primaryKey/detail2',
+        foreignKey: 'primaryKey',
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithSnapshotFields',
+    source: {
+      collection: 'master/{anotherId}',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'anotherId',
+      },
+      {
+        collection: 'somecoll/$testId/detail2',
+        foreignKey: 'anotherId',
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithMissingKey',
+    source: {
+      collection: 'master',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'randomId',
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesWithMissingFields',
+    source: {
+      collection: 'master/{randomId}',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'randomId',
+      },
+      {
+        collection: 'somecoll/$testId/detail2',
+        foreignKey: 'randomId',
       },
     ],
   },

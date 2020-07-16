@@ -42,7 +42,7 @@ module.exports.replicateMasterToDetail = integrify({
 module.exports.deleteReferencesToMaster = integrify({
   rule: 'DELETE_REFERENCES',
   source: {
-    collection: 'master',
+    collection: 'master/{masterId}',
   },
   targets: [
     {
@@ -58,6 +58,102 @@ module.exports.deleteReferencesToMaster = integrify({
   hooks: {
     pre: (snap, context) => {
       setState({ snap, context });
+    },
+  },
+});
+
+module.exports.deleteReferencesWithMasterParam = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master/{primaryKey}',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'primaryKey',
+    },
+    {
+      collection: 'somecoll/$primaryKey/detail2',
+      foreignKey: 'primaryKey',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.deleteReferencesWithSnapshotFields = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master/{anotherId}',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'anotherId',
+    },
+    {
+      collection: 'somecoll/$testId/detail2',
+      foreignKey: 'anotherId',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.deleteReferencesWithMissingKey = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'randomId',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.deleteReferencesWithMissingFields = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master/{randomId}',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'randomId',
+    },
+    {
+      collection: 'somecoll/$testId/detail2',
+      foreignKey: 'randomId',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
     },
   },
 });
