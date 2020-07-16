@@ -27,13 +27,16 @@ function regexMatches(text: string, regex: Key): string[] {
   return text.match(new RegExp(regex, 'g')) || [];
 }
 
-export function getPrimaryKey(ref: string): string {
+export function getPrimaryKey(
+  ref: string
+): { hasPrimaryKey: boolean; primaryKey: string } {
   const keys = regexMatches(ref, Key.Primary);
   if (keys.length > 0) {
     const pk = keys.pop(); // Pop the last item in the matched array
-    return pk.replace(/\{|\}/g, ''); // Remove { } from the primary key
+    // Remove { } from the primary key
+    return { hasPrimaryKey: true, primaryKey: pk.replace(/\{|\}/g, '') };
   }
-  throw new Error('integrify: Missing a primary key in the source');
+  return { hasPrimaryKey: false, primaryKey: 'masterId' };
 }
 
 export function replaceReferencesWith(

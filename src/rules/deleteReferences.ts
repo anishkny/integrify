@@ -30,13 +30,24 @@ export function integrifyDeleteReferences(
     )
   );
 
+  const { hasPrimaryKey, primaryKey } = getPrimaryKey(rule.source.collection);
+  if (!hasPrimaryKey) {
+    rule.source.collection = `${rule.source.collection}/{${primaryKey}}`;
+  }
+
   return functions.firestore
     .document(rule.source.collection)
     .onDelete((snap, context) => {
       // Get the last {...} in the source collection
-      const primaryKey = context.params[getPrimaryKey(rule.source.collection)];
+      const primaryKeyValue = context.params[primaryKey];
+      if (!primaryKeyValue) {
+        throw new Error(
+          `integrify: Missing a primary key [${primaryKey}] in the source params`
+        );
+      }
+
       console.log(
-        `integrify: Detected delete in [${rule.source.collection}], id [${primaryKey}]`
+        `integrify: Detected delete in [${rule.source.collection}], id [${primaryKeyValue}]`
       );
 
       // Call "pre" hook if defined
@@ -54,7 +65,7 @@ export function integrifyDeleteReferences(
             target.isCollectionGroup ? 'group ' : ''
           }[${target.collection}] where foreign key [${
             target.foreignKey
-          }] matches [${primaryKey}]`
+          }] matches [${primaryKeyValue}]`
         );
 
         // Replace the context.params in the target collection
@@ -80,7 +91,7 @@ export function integrifyDeleteReferences(
 
         promises.push(
           whereable
-            .where(target.foreignKey, '==', primaryKey)
+            .where(target.foreignKey, '==', primaryKeyValue)
             .get()
             .then(querySnap => {
               querySnap.forEach(doc => {
