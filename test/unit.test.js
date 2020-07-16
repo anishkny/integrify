@@ -74,22 +74,22 @@ testsuites.forEach(testsuite => {
 async function testPrimaryKey(sut, t, name) {
   // Test one key
   let targetCollection = 'collection/{collectionId}';
-  let primaryKey = getPrimaryKey(targetCollection);
+  let result = getPrimaryKey(targetCollection);
 
-  t.is(primaryKey, 'collectionId');
+  t.true(result.hasPrimaryKey);
+  t.is(result.primaryKey, 'collectionId');
 
   // Test two keys
   targetCollection = 'collection/{collectionId}/some_detail/{detailId}';
-  primaryKey = getPrimaryKey(targetCollection);
-  t.is(primaryKey, 'detailId');
+  result = getPrimaryKey(targetCollection);
+  t.true(result.hasPrimaryKey);
+  t.is(result.primaryKey, 'detailId');
 
   // Test missing key
   targetCollection = 'collection';
-
-  const error = t.throws(() => {
-    getPrimaryKey(targetCollection);
-  });
-  t.is(error.message, 'integrify: Missing a primary key in the source');
+  result = getPrimaryKey(targetCollection);
+  t.false(result.hasPrimaryKey);
+  t.is(result.primaryKey, 'masterId');
 
   await t.pass();
 }
@@ -430,7 +430,10 @@ async function testDeleteMissingSourceCollectionKey(sut, t, name) {
     });
   });
 
-  t.is(error.message, 'integrify: Missing a primary key in the source');
+  t.is(
+    error.message,
+    'integrify: Missing a primary key [masterId] in the source params'
+  );
 
   // Assert pre-hook was called (only for rules-in-situ)
   if (name === 'rules-in-situ') {
