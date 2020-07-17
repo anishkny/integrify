@@ -158,6 +158,70 @@ module.exports.deleteReferencesWithMissingFields = integrify({
   },
 });
 
+module.exports.deleteReferencesDeleteAllSubCollections = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master/{randomId}',
+  },
+  targets: [
+    {
+      collection: 'somecoll/$testId/detail2',
+      foreignKey: 'randomId',
+      deleteAll: true,
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.deleteReferencesDeleteAllSubCollectionErrors = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master/{randomId}',
+  },
+  targets: [
+    {
+      collection: 'master/details',
+      foreignKey: 'randomId',
+      deleteAll: true,
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.deleteReferencesMissingArgumentsErrors = integrify({
+  rule: 'DELETE_REFERENCES',
+  source: {
+    collection: 'master/{randomId}',
+  },
+  targets: [
+    {
+      collection: 'master/details',
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
 module.exports.maintainFavoritesCount = integrify({
   rule: 'MAINTAIN_COUNT',
   source: {
