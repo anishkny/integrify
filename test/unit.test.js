@@ -7,11 +7,7 @@ const fft = require('firebase-functions-test')(
 );
 const test = require('ava');
 const { integrify } = require('../lib');
-const {
-  replaceReferencesWith,
-  getPrimaryKey,
-  isSubCollection,
-} = require('../lib/common');
+const { replaceReferencesWith, getPrimaryKey } = require('../lib/common');
 const { getState, setState } = require('./functions/stateMachine');
 
 const admin = require('firebase-admin');
@@ -57,8 +53,8 @@ testsuites.forEach(testsuite => {
   });
   test(`[${name}] test get primary key`, async t =>
     testPrimaryKey(sut, t, name));
-  test(`[${name}] test sub-collection check`, async t =>
-    testSubCollection(sut, t, name));
+  // test(`[${name}] test sub-collection check`, async t =>
+  //   testSubCollection(sut, t, name));
   test(`[${name}] test target collection parameter swap`, async t =>
     testTargetVariableSwap(sut, t, name));
   test(`[${name}] test replicate attributes`, async t =>
@@ -78,8 +74,8 @@ testsuites.forEach(testsuite => {
 
   test(`[${name}] test delete all sub-collections in target reference`, async t =>
     testDeleteAllSubCollections(sut, t, name));
-  test(`[${name}] test delete all sub-collections in target reference error`, async t =>
-    testDeleteAllSubCollectionsError(sut, t, name));
+  // test(`[${name}] test delete all sub-collections in target reference error`, async t =>
+  //   testDeleteAllSubCollectionsError(sut, t, name));
 
   test(`[${name}] test delete missing arguments error`, async t =>
     testDeleteMissingArgumentsError(sut, t, name));
@@ -108,43 +104,43 @@ async function testPrimaryKey(sut, t, name) {
   await t.pass();
 }
 
-async function testSubCollection(sut, t, name) {
-  // Test zero key
-  let result = isSubCollection('');
-  t.false(result);
+// async function testSubCollection(sut, t, name) {
+//   // Test zero key
+//   let result = isSubCollection('');
+//   t.false(result);
 
-  // Test one key
-  result = isSubCollection('collection');
-  t.false(result);
+//   // Test one key
+//   result = isSubCollection('collection');
+//   t.false(result);
 
-  // Test two keys
-  result = isSubCollection('collection1/collection2');
-  t.false(result);
+//   // Test two keys
+//   result = isSubCollection('collection1/collection2');
+//   t.false(result);
 
-  // Test three keys
-  result = isSubCollection('collection1/collection2/collection3');
-  t.true(result);
+//   // Test three keys
+//   result = isSubCollection('collection1/collection2/collection3');
+//   t.true(result);
 
-  // Test four keys
-  result = isSubCollection('collection1/collection2/collection3/collection4');
-  t.false(result);
+//   // Test four keys
+//   result = isSubCollection('collection1/collection2/collection3/collection4');
+//   t.false(result);
 
-  // Test five keys
-  result = isSubCollection(
-    'collection1/collection2/collection3/collection4/collection5'
-  );
-  t.true(result);
+//   // Test five keys
+//   result = isSubCollection(
+//     'collection1/collection2/collection3/collection4/collection5'
+//   );
+//   t.true(result);
 
-  // Check incorrect format of collection
-  result = isSubCollection('collection1//');
-  t.false(result);
-  result = isSubCollection('//collection1//');
-  t.false(result);
-  result = isSubCollection('collection1///collection2///collection3');
-  t.true(result);
+//   // Check incorrect format of collection
+//   result = isSubCollection('collection1//');
+//   t.false(result);
+//   result = isSubCollection('//collection1//');
+//   t.false(result);
+//   result = isSubCollection('collection1///collection2///collection3');
+//   t.true(result);
 
-  await t.pass();
-}
+//   await t.pass();
+// }
 
 async function testTargetVariableSwap(sut, t, name) {
   // test no fields
@@ -639,72 +635,6 @@ async function testDeleteAllSubCollections(sut, t, name) {
       .collection('somecoll')
       .doc(testId)
       .collection('detail3')
-      .where('randomId', '==', randomId),
-    1
-  );
-
-  t.pass();
-}
-
-async function testDeleteAllSubCollectionsError(sut, t, name) {
-  // Create some docs referencing master doc
-  const randomId = makeid();
-  const testId = makeid();
-  const nestedDocRef = db.collection('somecoll').doc(testId);
-  await nestedDocRef.set({
-    x: 1,
-  });
-  await nestedDocRef.collection('detail2').add({
-    randomId: randomId,
-  });
-  await assertQuerySizeEventually(
-    db
-      .collection('somecoll')
-      .doc(testId)
-      .collection('detail2')
-      .where('randomId', '==', randomId),
-    1
-  );
-
-  // Trigger function to delete references
-  const snap = fft.firestore.makeDocumentSnapshot(
-    {
-      testId,
-    },
-    `master/${randomId}`
-  );
-  const wrapped = fft.wrap(sut.deleteReferencesDeleteAllSubCollectionErrors);
-  setState({
-    snap: null,
-    context: null,
-  });
-  const error = await t.throwsAsync(async () => {
-    await wrapped(snap, {
-      params: {
-        randomId: randomId,
-        testId: testId,
-      },
-    });
-  });
-  t.is(
-    error.message,
-    `integrify: [master/details] is an invalid sub-collection`
-  );
-
-  // Assert pre-hook was called (only for rules-in-situ)
-  if (name === 'rules-in-situ') {
-    const state = getState();
-    t.truthy(state.snap);
-    t.truthy(state.context);
-    t.is(state.context.params.randomId, randomId);
-  }
-
-  // Assert referencing docs were deleted
-  await assertQuerySizeEventually(
-    db
-      .collection('somecoll')
-      .doc(testId)
-      .collection('detail2')
       .where('randomId', '==', randomId),
     1
   );
