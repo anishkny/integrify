@@ -18,13 +18,6 @@ export function isConfig(arg: Rule | Config): arg is Config {
   return (arg as Config).config !== undefined;
 }
 
-export function isSubCollection(collection: string): boolean {
-  const filteredCollections = collection.split('/').filter(c => c.length > 0);
-  const numCollections = filteredCollections.length;
-  // Return false is equal to 1 or an even number
-  return numCollections !== 1 && numCollections % 2 === 1;
-}
-
 enum Key {
   Primary = '{(.*?)}',
   Foreign = '([$][^/]*|$)',

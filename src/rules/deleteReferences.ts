@@ -1,10 +1,4 @@
-import {
-  Config,
-  Rule,
-  replaceReferencesWith,
-  getPrimaryKey,
-  isSubCollection,
-} from '../common';
+import { Config, Rule, replaceReferencesWith, getPrimaryKey } from '../common';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -79,10 +73,6 @@ export function integrifyDeleteReferences(
         if (!target.deleteAll && target.foreignKey.trim().length === 0) {
           throw new Error(
             `integrify: missing foreign key or set deleteAll to true`
-          );
-        } else if (target.deleteAll && !isSubCollection(target.collection)) {
-          throw new Error(
-            `integrify: [${target.collection}] is an invalid sub-collection`
           );
         }
 
