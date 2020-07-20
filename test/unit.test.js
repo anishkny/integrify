@@ -53,8 +53,6 @@ testsuites.forEach(testsuite => {
   });
   test(`[${name}] test get primary key`, async t =>
     testPrimaryKey(sut, t, name));
-  // test(`[${name}] test sub-collection check`, async t =>
-  //   testSubCollection(sut, t, name));
   test(`[${name}] test target collection parameter swap`, async t =>
     testTargetVariableSwap(sut, t, name));
   test(`[${name}] test replicate attributes`, async t =>
@@ -74,8 +72,6 @@ testsuites.forEach(testsuite => {
 
   test(`[${name}] test delete all sub-collections in target reference`, async t =>
     testDeleteAllSubCollections(sut, t, name));
-  // test(`[${name}] test delete all sub-collections in target reference error`, async t =>
-  //   testDeleteAllSubCollectionsError(sut, t, name));
 
   test(`[${name}] test delete missing arguments error`, async t =>
     testDeleteMissingArgumentsError(sut, t, name));
@@ -103,44 +99,6 @@ async function testPrimaryKey(sut, t, name) {
 
   await t.pass();
 }
-
-// async function testSubCollection(sut, t, name) {
-//   // Test zero key
-//   let result = isSubCollection('');
-//   t.false(result);
-
-//   // Test one key
-//   result = isSubCollection('collection');
-//   t.false(result);
-
-//   // Test two keys
-//   result = isSubCollection('collection1/collection2');
-//   t.false(result);
-
-//   // Test three keys
-//   result = isSubCollection('collection1/collection2/collection3');
-//   t.true(result);
-
-//   // Test four keys
-//   result = isSubCollection('collection1/collection2/collection3/collection4');
-//   t.false(result);
-
-//   // Test five keys
-//   result = isSubCollection(
-//     'collection1/collection2/collection3/collection4/collection5'
-//   );
-//   t.true(result);
-
-//   // Check incorrect format of collection
-//   result = isSubCollection('collection1//');
-//   t.false(result);
-//   result = isSubCollection('//collection1//');
-//   t.false(result);
-//   result = isSubCollection('collection1///collection2///collection3');
-//   t.true(result);
-
-//   await t.pass();
-// }
 
 async function testTargetVariableSwap(sut, t, name) {
   // test no fields
