@@ -378,7 +378,6 @@ async function testDeleteSnapshotFieldReferences(sut, t, name) {
   await wrapped(snap, {
     params: {
       anotherId: anotherId,
-      testId: testId,
     },
   });
 
