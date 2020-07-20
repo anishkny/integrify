@@ -85,7 +85,7 @@ module.exports.deleteReferencesToMaster = integrify({
     {
       collection: 'detail1',
       foreignKey: 'masterId', // Optional: Delete document with matching foreign key
-      deleteAll: false, // Optional: Delete all from sub-collection
+      deleteAll: false, // Optional: Delete all from collection
       // EITHER 'foreignKey' OR 'deleteAll' MUST BE PROVIDED
       isCollectionGroup: true,  // Optional: Delete from collection group, see more below
     },
