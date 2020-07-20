@@ -110,6 +110,46 @@ module.exports = [
     ],
   },
   {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesDeleteAllSubCollections',
+    source: {
+      collection: 'master/{randomId}',
+    },
+    targets: [
+      {
+        collection: 'somecoll/$testId/detail2',
+        foreignKey: 'randomId',
+        deleteAll: true,
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesDeleteAllSubCollectionErrors',
+    source: {
+      collection: 'master/{randomId}',
+    },
+    targets: [
+      {
+        collection: 'master/details',
+        foreignKey: 'randomId',
+        deleteAll: true,
+      },
+    ],
+  },
+  {
+    rule: 'DELETE_REFERENCES',
+    name: 'deleteReferencesMissingArgumentsErrors',
+    source: {
+      collection: 'master/{randomId}',
+    },
+    targets: [
+      {
+        collection: 'master/details',
+      },
+    ],
+  },
+  {
     rule: 'MAINTAIN_COUNT',
     name: 'maintainFavoritesCount',
     source: {

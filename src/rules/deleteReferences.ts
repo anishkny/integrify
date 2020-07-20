@@ -6,8 +6,9 @@ export interface DeleteReferencesRule extends Rule {
   };
   targets: {
     collection: string;
-    foreignKey: string;
+    foreignKey?: string;
     isCollectionGroup?: boolean;
+    deleteAll?: boolean;
   }[];
   hooks?: {
     pre?: Function;
@@ -60,13 +61,20 @@ export function integrifyDeleteReferences(
       // Loop over each target
       const db = config.config.db;
       rule.targets.forEach(target => {
-        console.log(
-          `integrify: Deleting all docs in collection ${
-            target.isCollectionGroup ? 'group ' : ''
-          }[${target.collection}] where foreign key [${
-            target.foreignKey
-          }] matches [${primaryKeyValue}]`
-        );
+        // Check delete all flag
+        if (!target.deleteAll) {
+          target.deleteAll = false;
+        }
+        // CHeck the foreign key
+        if (!target.foreignKey) {
+          target.foreignKey = '';
+        }
+
+        if (!target.deleteAll && target.foreignKey.trim().length === 0) {
+          throw new Error(
+            `integrify: missing foreign key or set deleteAll to true`
+          );
+        }
 
         // Replace the context.params in the target collection
         const paramSwap = replaceReferencesWith(
@@ -89,20 +97,33 @@ export function integrifyDeleteReferences(
           whereable = db.collection(target.collection);
         }
 
+        if (target.deleteAll) {
+          console.log(
+            `integrify: Deleting all docs in sub-collection [${target.collection}]`
+          );
+        } else {
+          console.log(
+            `integrify: Deleting all docs in collection ${
+              target.isCollectionGroup ? 'group ' : ''
+            }[${target.collection}] where foreign key [${
+              target.foreignKey
+            }] matches [${primaryKeyValue}]`
+          );
+
+          whereable = whereable.where(target.foreignKey, '==', primaryKeyValue);
+        }
+
         promises.push(
-          whereable
-            .where(target.foreignKey, '==', primaryKeyValue)
-            .get()
-            .then(querySnap => {
-              querySnap.forEach(doc => {
-                console.log(
-                  `integrify: Deleting [${target.collection}]${
-                    target.isCollectionGroup ? ' (group)' : ''
-                  }, id [${doc.id}]`
-                );
-                promises.push(doc.ref.delete());
-              });
-            })
+          whereable.get().then(querySnap => {
+            querySnap.forEach(doc => {
+              console.log(
+                `integrify: Deleting [${target.collection}]${
+                  target.isCollectionGroup ? ' (group)' : ''
+                }, id [${doc.id}]`
+              );
+              promises.push(doc.ref.delete());
+            });
+          })
         );
       });
       return Promise.all(promises);

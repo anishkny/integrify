@@ -1,17 +1,13 @@
 # 𝚒𝚗𝚝𝚎𝚐𝚛𝚒𝚏𝚢
 
-[![Build Status](https://travis-ci.com/anishkny/integrify.svg?branch=master)](https://travis-ci.com/anishkny/integrify)
-[![Coverage Status](https://coveralls.io/repos/github/anishkny/integrify/badge.svg?branch=master)](https://coveralls.io/github/anishkny/integrify?branch=master)
-[![Greenkeeper badge](https://badges.greenkeeper.io/anishkny/integrify.svg)](https://greenkeeper.io/)
-[![Security](https://img.shields.io/badge/security-GitHub-blue)](https://github.com/anishkny/integrify/network/alerts)
-[![npm package](https://img.shields.io/npm/v/integrify.svg)](https://www.npmjs.com/package/integrify)
-[![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
 
 🤝 Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)
 
-[Introductory blog post](https://dev.to/anishkny/---firestore-referential-integrity-via-triggers-kpb)
+This library was forked from [anishkny/integrify](https://github.com/anishkny/integrify)
 
 ## Usage
+
+#### REPLICATE
 
 ```js
 // index.js
@@ -61,20 +57,42 @@ module.exports.replicateMasterToDetail = integrify({
     },
   },
 });
+```
+
+#### DELETE
+
+```js
+// index.js
+
+const { integrify } = require('integrify');
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+const db = admin.firestore();
+
+integrify({ config: { functions, db } });
 
 // Automatically delete stale references
 module.exports.deleteReferencesToMaster = integrify({
   rule: 'DELETE_REFERENCES',
   source: {
-    collection: 'master',
+    collection: 'master', // <-- This will append {masterId}
+    // OR
+    collection: 'master/{masterId}', // <-- Can be any string as in Firebase
   },
   targets: [
     {
       collection: 'detail1',
-      foreignKey: 'masterId',
-
-      // Optional:
-      isCollectionGroup: true, // Delete from collection group, see more below
+      foreignKey: 'masterId', // Optional: Delete document with matching foreign key
+      deleteAll: false, // Optional: Delete all from collection
+      // EITHER 'foreignKey' OR 'deleteAll' MUST BE PROVIDED
+      isCollectionGroup: true,  // Optional: Delete from collection group, see more below
+    },
+    {
+      collection: 'detail1/$master/details', // Can reference source ID, will throw error if it doesn't exist
+      // OR
+      collection: 'detail1/$fieldValue/details', // Can reference a field value, will throw error if it doesn't exist
     },
   ],
 
@@ -86,6 +104,21 @@ module.exports.deleteReferencesToMaster = integrify({
     },
   },
 });
+```
+
+#### MAINTAIN COUNT
+
+```js
+// index.js
+
+const { integrify } = require('integrify');
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+const db = admin.firestore();
+
+integrify({ config: { functions, db } });
 
 // Automatically maintain count
 module.exports.maintainFavoritesCount = integrify({

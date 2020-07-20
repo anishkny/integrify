@@ -69,6 +69,12 @@ testsuites.forEach(testsuite => {
     testDeleteMissingSourceCollectionKey(sut, t, name));
   test(`[${name}] test delete with missing snapshot fields in target reference`, async t =>
     testDeleteMissingFieldsReferences(sut, t, name));
+
+  test(`[${name}] test delete all sub-collections in target reference`, async t =>
+    testDeleteAllSubCollections(sut, t, name));
+
+  test(`[${name}] test delete missing arguments error`, async t =>
+    testDeleteMissingArgumentsError(sut, t, name));
 });
 
 async function testPrimaryKey(sut, t, name) {
@@ -512,6 +518,109 @@ async function testDeleteMissingFieldsReferences(sut, t, name) {
       .collection('detail2')
       .where('randomId', '==', randomId),
     1
+  );
+
+  t.pass();
+}
+
+async function testDeleteAllSubCollections(sut, t, name) {
+  // Create some docs referencing master doc
+  const randomId = makeid();
+  const testId = makeid();
+  const nestedDocRef = db.collection('somecoll').doc(testId);
+  await nestedDocRef.set({
+    x: 1,
+  });
+  await nestedDocRef.collection('detail2').add({
+    randomId: randomId,
+  });
+  await nestedDocRef.collection('detail3').add({
+    randomId: randomId,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('randomId', '==', randomId),
+    1
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail3')
+      .where('randomId', '==', randomId),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot(
+    { testId },
+    `master/${randomId}`
+  );
+  const wrapped = fft.wrap(sut.deleteReferencesDeleteAllSubCollections);
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      randomId: randomId,
+      testId: testId,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.randomId, randomId);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('randomId', '==', randomId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail3')
+      .where('randomId', '==', randomId),
+    1
+  );
+
+  t.pass();
+}
+
+async function testDeleteMissingArgumentsError(sut, t, name) {
+  // Create some docs referencing master doc
+  const randomId = makeid();
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot({}, `master/${randomId}`);
+  const wrapped = fft.wrap(sut.deleteReferencesMissingArgumentsErrors);
+  setState({
+    snap: null,
+    context: null,
+  });
+  const error = await t.throwsAsync(async () => {
+    await wrapped(snap, {
+      params: {
+        randomId: randomId,
+      },
+    });
+  });
+  t.is(
+    error.message,
+    'integrify: missing foreign key or set deleteAll to true'
   );
 
   t.pass();
