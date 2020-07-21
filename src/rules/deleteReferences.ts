@@ -76,16 +76,10 @@ export function integrifyDeleteReferences(
           );
         }
 
-        // Replace the context.params in the target collection
-        const paramSwap = replaceReferencesWith(
-          context.params,
-          target.collection
-        );
-
-        // Replace the snapshot fields in the target collection
+        // Replace the context.params and snapshot fields in the target collection
         const fieldSwap = replaceReferencesWith(
-          snap.data(),
-          paramSwap.targetCollection
+          { ...snap.data(), ...context.params },
+          target.collection
         );
         target.collection = fieldSwap.targetCollection;
 
