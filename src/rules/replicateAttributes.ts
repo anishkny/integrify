@@ -1,4 +1,6 @@
 import { Config, Rule } from '../common';
+import { firestore } from 'firebase-admin';
+const FieldValue = firestore.FieldValue;
 
 export interface ReplicateAttributesRule extends Rule {
   source: {
@@ -11,6 +13,7 @@ export interface ReplicateAttributesRule extends Rule {
       [sourceAttribute: string]: string;
     };
     isCollectionGroup?: boolean;
+    deleteMissing?: boolean;
   }[];
   hooks?: {
     pre?: Function;
@@ -80,19 +83,30 @@ export function integrifyReplicateAttributes(
         return null;
       }
 
-      // Loop over each target specification to replicate atributes
+      // Loop over each target specification to replicate attributes
       const db = config.config.db;
       rule.targets.forEach(target => {
         const targetCollection = target.collection;
         const update = {};
+        let shouldDelete = false;
 
-        // Create "update" mapping each changed attribute from source => target
-        Object.keys(newValue).forEach(changedAttribute => {
-          if (target.attributeMapping[changedAttribute]) {
+        if (target.deleteMissing) {
+          shouldDelete = target.deleteMissing;
+        }
+
+        // Create "update" mapping each changed attribute from source => target,
+        // if delete is set delete field
+        Object.keys(target.attributeMapping).forEach(changedAttribute => {
+          if (newValue[changedAttribute]) {
             update[target.attributeMapping[changedAttribute]] =
               newValue[changedAttribute];
+          } else if (shouldDelete) {
+            update[
+              target.attributeMapping[changedAttribute]
+            ] = FieldValue.delete();
           }
         });
+
         console.log(
           `integrify: On collection ${
             target.isCollectionGroup ? 'group ' : ''
