@@ -28,6 +28,24 @@ module.exports = [
     ],
   },
   {
+    rule: 'REPLICATE_ATTRIBUTES',
+    name: 'replicateMasterDeleteWhenEmpty',
+    source: {
+      collection: 'master',
+    },
+    targets: [
+      {
+        collection: 'detail1',
+        foreignKey: 'tempId',
+        attributeMapping: {
+          masterDetail1: 'foreignDetail1',
+          masterDetail2: 'foreignDetail2',
+        },
+        deleteMissing: true,
+      },
+    ],
+  },
+  {
     rule: 'DELETE_REFERENCES',
     name: 'deleteReferencesToMaster',
     source: {

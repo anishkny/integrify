@@ -61,6 +61,9 @@ testsuites.forEach(testsuite => {
     testDeleteReferences(sut, t, name));
   test(`[${name}] test maintain count`, async t => testMaintainCount(sut, t));
 
+  test(`[${name}] test replicate attributes delete when field is not there`, async t =>
+    testReplicateAttributesDeleteEmpty(sut, t, name));
+
   test(`[${name}] test delete with masterId in target reference`, async t =>
     testDeleteParamReferences(sut, t, name));
   test(`[${name}] test delete with snapshot fields in target reference`, async t =>
@@ -163,7 +166,9 @@ async function testReplicateAttributes(sut, t, name) {
 
   // Call trigger to replicate attributes from master
   const beforeSnap = fft.firestore.makeDocumentSnapshot(
-    {},
+    {
+      masterField5: 'missing',
+    },
     `master/${masterId}`
   );
   const afterSnap = fft.firestore.makeDocumentSnapshot(
@@ -222,6 +227,68 @@ async function testReplicateAttributes(sut, t, name) {
       masterId: masterId,
     },
   });
+
+  await t.pass();
+}
+
+async function testReplicateAttributesDeleteEmpty(sut, t, name) {
+  // Add a couple of detail documents to follow master
+  const masterId = makeid();
+  await db.collection('detail1').add({
+    tempId: masterId,
+    foreignDetail1: 'foreign_detail_1',
+    foreignDetail2: 'foreign_detail_2',
+  });
+
+  // Call trigger to replicate attributes from master
+  const beforeSnap = fft.firestore.makeDocumentSnapshot(
+    {
+      masterDetail1: 'after1',
+      masterDetail2: 'after2',
+    },
+    `master/${masterId}`
+  );
+  const afterSnap = fft.firestore.makeDocumentSnapshot(
+    {
+      masterDetail2: 'after3',
+    },
+    `master/${masterId}`
+  );
+  const change = fft.makeChange(beforeSnap, afterSnap);
+  const wrapped = fft.wrap(sut.replicateMasterDeleteWhenEmpty);
+  setState({
+    change: null,
+    context: null,
+  });
+  await wrapped(change, {
+    params: {
+      masterId: masterId,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.change);
+    t.truthy(state.context);
+    t.is(state.context.params.masterId, masterId);
+  }
+
+  // Assert that attributes get replicated to detail documents
+  await assertQuerySizeEventually(
+    db
+      .collection('detail1')
+      .where('tempId', '==', masterId)
+      .where('foreignDetail1', '==', 'foreign_detail_1'),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('detail1')
+      .where('tempId', '==', masterId)
+      .where('foreignDetail2', '==', 'after3'),
+    1
+  );
 
   await t.pass();
 }
