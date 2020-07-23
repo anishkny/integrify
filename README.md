@@ -25,14 +25,18 @@ integrify({ config: { functions, db } });
 module.exports.replicateMasterToDetail = integrify({
   rule: 'REPLICATE_ATTRIBUTES',
   source: {
-    collection: 'master',
+    source: {
+    collection: 'master', // <-- This will append {masterId}
+    // OR
+    collection: 'master/{masterId}', // <-- Can be any string as in Firebase
+  },
   },
   targets: [
     {
       collection: 'detail1',
       foreignKey: 'masterId',
       attributeMapping: {
-        masterField1: 'detail1Field1',
+        masterField1: 'detail1Field1', // If an field is missing after the update, the field will be deleted
         masterField2: 'detail1Field2',
       },
     },

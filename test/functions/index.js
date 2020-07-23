@@ -39,6 +39,55 @@ module.exports.replicateMasterToDetail = integrify({
   },
 });
 
+module.exports.replicateMasterDeleteWhenEmpty = integrify({
+  rule: 'REPLICATE_ATTRIBUTES',
+  source: {
+    collection: 'master/{primaryKey}',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'tempId',
+      attributeMapping: {
+        masterDetail1: 'foreignDetail1',
+        masterDetail2: 'foreignDetail2',
+      },
+    },
+  ],
+  hooks: {
+    pre: (change, context) => {
+      setState({
+        change,
+        context,
+      });
+    },
+  },
+});
+
+module.exports.replicateReferencesWithMissingKey = integrify({
+  rule: 'REPLICATE_ATTRIBUTES',
+  source: {
+    collection: 'master/{masterId}',
+  },
+  targets: [
+    {
+      collection: 'detail1',
+      foreignKey: 'randomId',
+      attributeMapping: {
+        masterDetail1: 'foreignDetail1',
+      },
+    },
+  ],
+  hooks: {
+    pre: (snap, context) => {
+      setState({
+        snap,
+        context,
+      });
+    },
+  },
+});
+
 module.exports.deleteReferencesToMaster = integrify({
   rule: 'DELETE_REFERENCES',
   source: {
