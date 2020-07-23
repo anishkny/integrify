@@ -52,7 +52,6 @@ module.exports.replicateMasterDeleteWhenEmpty = integrify({
         masterDetail1: 'foreignDetail1',
         masterDetail2: 'foreignDetail2',
       },
-      deleteMissing: true,
     },
   ],
   hooks: {

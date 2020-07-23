@@ -41,7 +41,6 @@ module.exports = [
           masterDetail1: 'foreignDetail1',
           masterDetail2: 'foreignDetail2',
         },
-        deleteMissing: true,
       },
     ],
   },
