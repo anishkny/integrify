@@ -39,7 +39,6 @@ module.exports.replicateMasterToDetail = integrify({
         masterField1: 'detail1Field1',
         masterField2: 'detail1Field2',
       },
-      deleteMissing: true, // Optional: Delete missing fields on update, defaults to false
     },
     {
       collection: 'detail2',
