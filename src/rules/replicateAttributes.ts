@@ -1,4 +1,4 @@
-import { Config, Rule } from '../common';
+import { Config, Rule, getPrimaryKey } from '../common';
 import { firestore } from 'firebase-admin';
 const FieldValue = firestore.FieldValue;
 
@@ -43,6 +43,11 @@ export function integrifyReplicateAttributes(
     });
   });
 
+  const { hasPrimaryKey, primaryKey } = getPrimaryKey(rule.source.collection);
+  if (!hasPrimaryKey) {
+    rule.source.collection = `${rule.source.collection}/{${primaryKey}}`;
+  }
+
   // Create map of master attributes to track for replication
   const trackedMasterAttributes = {};
   rule.targets.forEach(target => {
@@ -52,12 +57,18 @@ export function integrifyReplicateAttributes(
   });
 
   return functions.firestore
-    .document(`${rule.source.collection}/{masterId}`)
+    .document(rule.source.collection)
     .onUpdate((change, context) => {
-      const masterId = context.params.masterId;
+      // Get the last {...} in the source collection
+      const primaryKeyValue = context.params[primaryKey];
+      if (!primaryKeyValue) {
+        throw new Error(
+          `integrify: Missing a primary key [${primaryKey}] in the source params`
+        );
+      }
       const newValue = change.after.data();
       console.log(
-        `integrify: Detected update in [${rule.source.collection}], id [${masterId}], new value:`,
+        `integrify: Detected update in [${rule.source.collection}], id [${primaryKeyValue}], new value:`,
         newValue
       );
 
@@ -124,7 +135,7 @@ export function integrifyReplicateAttributes(
         }
         promises.push(
           whereable
-            .where(target.foreignKey, '==', masterId)
+            .where(target.foreignKey, '==', primaryKeyValue)
             .get()
             .then(detailDocs => {
               detailDocs.forEach(detailDoc => {
