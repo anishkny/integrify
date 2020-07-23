@@ -36,7 +36,7 @@ module.exports.replicateMasterToDetail = integrify({
       collection: 'detail1',
       foreignKey: 'masterId',
       attributeMapping: {
-        masterField1: 'detail1Field1',
+        masterField1: 'detail1Field1', // If an field is missing after the update, the field will be deleted
         masterField2: 'detail1Field2',
       },
     },

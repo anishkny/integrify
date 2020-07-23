@@ -13,7 +13,6 @@ export interface ReplicateAttributesRule extends Rule {
       [sourceAttribute: string]: string;
     };
     isCollectionGroup?: boolean;
-    deleteMissing?: boolean;
   }[];
   hooks?: {
     pre?: Function;
@@ -99,23 +98,12 @@ export function integrifyReplicateAttributes(
       rule.targets.forEach(target => {
         const targetCollection = target.collection;
         const update = {};
-        let shouldDelete = false;
-
-        if (target.deleteMissing) {
-          shouldDelete = target.deleteMissing;
-        }
 
         // Create "update" mapping each changed attribute from source => target,
         // if delete is set delete field
         Object.keys(target.attributeMapping).forEach(changedAttribute => {
-          if (newValue[changedAttribute]) {
-            update[target.attributeMapping[changedAttribute]] =
-              newValue[changedAttribute];
-          } else if (shouldDelete) {
-            update[
-              target.attributeMapping[changedAttribute]
-            ] = FieldValue.delete();
-          }
+          update[target.attributeMapping[changedAttribute]] =
+            newValue[changedAttribute] || FieldValue.delete();
         });
 
         console.log(
