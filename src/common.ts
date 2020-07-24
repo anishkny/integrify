@@ -1,3 +1,6 @@
+import { firestore } from 'firebase-functions';
+import * as functions from 'firebase-functions';
+
 export interface Rule {
   rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'MAINTAIN_COUNT';
   name?: string;
@@ -9,6 +12,11 @@ export interface Config {
     functions: typeof import('firebase-functions');
   };
 }
+
+export type PreHookFunction = (
+  change: firestore.DocumentSnapshot,
+  context: functions.EventContext
+) => Promise<void>;
 
 export function isRule(arg: Rule | Config): arg is Rule {
   return (arg as Rule).rule !== undefined;

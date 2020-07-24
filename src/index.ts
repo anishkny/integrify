@@ -17,11 +17,12 @@ import {
   isReplicateAttributesRule,
   ReplicateAttributesRule,
 } from './rules/replicateAttributes';
+import { CloudFunction } from 'firebase-functions';
 
 export function integrify(config: Config): null;
 export function integrify(
   rule: ReplicateAttributesRule | DeleteReferencesRule | MaintainCountRule
-): any;
+): CloudFunction<any>;
 export function integrify(ruleOrConfig?: Rule | Config) {
   if (!ruleOrConfig) {
     const rules = readRulesFromFile();

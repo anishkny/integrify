@@ -1,4 +1,10 @@
-import { Config, Rule, replaceReferencesWith, getPrimaryKey } from '../common';
+import {
+  Config,
+  Rule,
+  PreHookFunction,
+  replaceReferencesWith,
+  getPrimaryKey,
+} from '../common';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -11,7 +17,7 @@ export interface DeleteReferencesRule extends Rule {
     deleteAll?: boolean;
   }[];
   hooks?: {
-    pre?: Function;
+    pre?: PreHookFunction;
   };
 }
 
@@ -38,7 +44,7 @@ export function integrifyDeleteReferences(
 
   return functions.firestore
     .document(rule.source.collection)
-    .onDelete((snap, context) => {
+    .onDelete(async (snap, context) => {
       // Get the last {...} in the source collection
       const primaryKeyValue = context.params[primaryKey];
       if (!primaryKeyValue) {
@@ -52,15 +58,16 @@ export function integrifyDeleteReferences(
       );
 
       // Call "pre" hook if defined
-      const promises = [];
+      // const promises = [];
       if (rule.hooks && rule.hooks.pre) {
-        promises.push(rule.hooks.pre(snap, context));
+        // promises.push();
+        await rule.hooks.pre(snap, context);
         console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
       }
 
       // Loop over each target
       const db = config.config.db;
-      rule.targets.forEach(target => {
+      for (const target of rule.targets) {
         // Check delete all flag
         if (!target.deleteAll) {
           target.deleteAll = false;
@@ -84,7 +91,7 @@ export function integrifyDeleteReferences(
         target.collection = fieldSwap.targetCollection;
 
         // Delete all docs in this target corresponding to deleted master doc
-        let whereable = null;
+        let whereable: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = null;
         if (target.isCollectionGroup) {
           whereable = db.collectionGroup(target.collection);
         } else {
@@ -107,19 +114,15 @@ export function integrifyDeleteReferences(
           whereable = whereable.where(target.foreignKey, '==', primaryKeyValue);
         }
 
-        promises.push(
-          whereable.get().then(querySnap => {
-            querySnap.forEach(doc => {
-              console.log(
-                `integrify: Deleting [${target.collection}]${
-                  target.isCollectionGroup ? ' (group)' : ''
-                }, id [${doc.id}]`
-              );
-              promises.push(doc.ref.delete());
-            });
-          })
-        );
-      });
-      return Promise.all(promises);
+        const querySnap = await whereable.get();
+        for (const doc of querySnap.docs) {
+          console.log(
+            `integrify: Deleting [${target.collection}]${
+              target.isCollectionGroup ? ' (group)' : ''
+            }, id [${doc.id}]`
+          );
+          await doc.ref.delete();
+        }
+      }
     });
 }
