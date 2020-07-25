@@ -33,7 +33,7 @@ module.exports.replicateMasterToDetail = integrify({
     },
   ],
   hooks: {
-    pre: (change, context) => {
+    pre: async (change, context) => {
       setState({ change, context });
     },
   },
@@ -55,7 +55,7 @@ module.exports.replicateMasterDeleteWhenEmpty = integrify({
     },
   ],
   hooks: {
-    pre: (change, context) => {
+    pre: async (change, context) => {
       setState({
         change,
         context,
@@ -79,7 +79,7 @@ module.exports.replicateReferencesWithMissingKey = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,
@@ -105,7 +105,7 @@ module.exports.deleteReferencesToMaster = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({ snap, context });
     },
   },
@@ -127,7 +127,7 @@ module.exports.deleteReferencesWithMasterParam = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,
@@ -152,7 +152,7 @@ module.exports.deleteReferencesWithSnapshotFields = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,
@@ -173,7 +173,7 @@ module.exports.deleteReferencesWithMissingKey = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,
@@ -198,7 +198,7 @@ module.exports.deleteReferencesWithMissingFields = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,
@@ -220,7 +220,7 @@ module.exports.deleteReferencesDeleteAllSubCollections = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,
@@ -242,7 +242,7 @@ module.exports.deleteReferencesDeleteAllSubCollectionErrors = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,
@@ -262,7 +262,7 @@ module.exports.deleteReferencesMissingArgumentsErrors = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
+    pre: async (snap, context) => {
       setState({
         snap,
         context,

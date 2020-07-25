@@ -409,6 +409,7 @@ async function testDeleteReferences(sut, t, name) {
     t.is(state.context.params.masterId, masterId);
   }
 
+  console.log('Here 1');
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
     db.collection('detail1').where('masterId', '==', masterId),
@@ -859,7 +860,7 @@ async function assertDocumentValueEventually(
   log(
     `Asserting doc [${docRef.path}] field [${fieldPath}] has value [${expectedValue}] ... `
   );
-  await sleep(1000);
+  // await sleep(1000);
   await new Promise(res => {
     unsubscribe = docRef.onSnapshot(snap => {
       if (snap.exists) {
@@ -876,21 +877,15 @@ async function assertDocumentValueEventually(
 }
 
 async function assertQuerySizeEventually(
-  query,
-  expectedResultSize,
-  log = console.log
+  query, // Type: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
+  expectedResultSize, // Type: number
+  log = console.log // Type: (...data: any[]): void
 ) {
   log(`Asserting query result to have [${expectedResultSize}] entries ... `);
-  await sleep(1000);
-  const docs = await new Promise(res => {
-    unsubscribe = query.onSnapshot(snap => {
-      log(`Current result size: [${snap.size}]`);
-      if (snap.size === expectedResultSize) {
-        log('Matched!');
-        unsubscribe();
-        res(snap.docs);
-      }
-    });
-  });
+  const docs = await query.get();
+  log(`Current result size: [${docs.length}]`);
+  if (docs.length === expectedResultSize) {
+    log('Matched!');
+  }
   return docs;
 }
