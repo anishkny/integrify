@@ -1,5 +1,9 @@
-import { firestore } from 'firebase-functions';
+import { firestore, Change } from 'firebase-functions';
 import * as functions from 'firebase-functions';
+import {
+  DocumentSnapshot,
+  QueryDocumentSnapshot,
+} from 'firebase-functions/lib/providers/firestore';
 
 export interface Rule {
   rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'MAINTAIN_COUNT';
@@ -14,7 +18,7 @@ export interface Config {
 }
 
 export type PreHookFunction = (
-  change: firestore.DocumentSnapshot,
+  change: DocumentSnapshot | Change<QueryDocumentSnapshot>,
   context: functions.EventContext
 ) => Promise<void>;
 
