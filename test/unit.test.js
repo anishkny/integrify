@@ -860,7 +860,6 @@ async function assertDocumentValueEventually(
   log(
     `Asserting doc [${docRef.path}] field [${fieldPath}] has value [${expectedValue}] ... `
   );
-  // await sleep(1000);
   await new Promise(res => {
     unsubscribe = docRef.onSnapshot(snap => {
       if (snap.exists) {
