@@ -39,6 +39,14 @@ function regexMatches(text: string, regex: Key): string[] {
   return text.match(new RegExp(regex, 'g')) || [];
 }
 
+function containsSource(text: string): boolean {
+  return text.includes('$source.');
+}
+
+function removeVariableToken(text: string, source: boolean): string {
+  return source ? text.replace('$source.', '') : text.replace('$', '');
+}
+
 export function getPrimaryKey(
   ref: string
 ): { hasPrimaryKey: boolean; primaryKey: string } {
@@ -61,7 +69,12 @@ export function replaceReferencesWith(
   if (matches.length > 0 && fields) {
     hasFields = true;
     matches.forEach(match => {
-      const field = fields[match.replace('$', '')];
+      const isSourceField = containsSource(match);
+      const cleanedIndex = removeVariableToken(match, isSourceField);
+
+      const field = isSourceField
+        ? fields.source[cleanedIndex]
+        : fields[cleanedIndex];
       if (field) {
         console.log(
           `integrify: Detected dynamic reference, replacing [${match}] with [${field}]`

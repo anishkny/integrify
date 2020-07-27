@@ -8,6 +8,7 @@ import {
   FieldPath,
   WriteResult,
 } from '@google-cloud/firestore';
+import * as sizeof from 'object-sizeof';
 
 const BYTES_LIMIT = 10485760;
 export class WriteBatch {

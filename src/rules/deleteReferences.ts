@@ -84,7 +84,7 @@ export function integrifyDeleteReferences(
 
         // Replace the context.params and snapshot fields in the target collection
         const fieldSwap = replaceReferencesWith(
-          { ...snap.data(), ...context.params },
+          { source: snap.data() || {}, ...context.params },
           target.collection
         );
         target.collection = fieldSwap.targetCollection;
