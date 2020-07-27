@@ -860,19 +860,14 @@ async function assertDocumentValueEventually(
   log(
     `Asserting doc [${docRef.path}] field [${fieldPath}] has value [${expectedValue}] ... `
   );
-  await new Promise(res => {
-    unsubscribe = docRef.onSnapshot(snap => {
-      if (snap.exists) {
-        const newValue = snap.get(fieldPath);
-        log(`Current value: [${newValue.toString()}] `);
-        if (newValue === expectedValue) {
-          log('Matched!');
-          unsubscribe();
-          res();
-        }
-      }
-    });
-  });
+  const doc = await docRef.get();
+  if (doc.exists) {
+    const newValue = doc.get(fieldPath);
+    log(`Current value: [${newValue.toString()}] `);
+    if (newValue === expectedValue) {
+      log('Matched!');
+    }
+  }
 }
 
 async function assertQuerySizeEventually(
