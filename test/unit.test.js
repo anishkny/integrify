@@ -635,7 +635,7 @@ async function testDeleteMissingFieldsReferences(sut, t, name) {
     });
   });
 
-  t.is(error.message, 'integrify: Missing dynamic reference: [$testId]');
+  t.is(error.message, 'integrify: Missing dynamic reference: [$source.testId]');
 
   // Assert pre-hook was called (only for rules-in-situ)
   if (name === 'rules-in-situ') {
@@ -706,7 +706,6 @@ async function testDeleteAllSubCollections(sut, t, name) {
   await wrapped(snap, {
     params: {
       randomId: randomId,
-      testId: testId,
     },
   });
 
@@ -859,38 +858,26 @@ async function assertDocumentValueEventually(
   log(
     `Asserting doc [${docRef.path}] field [${fieldPath}] has value [${expectedValue}] ... `
   );
-  await sleep(1000);
-  await new Promise(res => {
-    unsubscribe = docRef.onSnapshot(snap => {
-      if (snap.exists) {
-        const newValue = snap.get(fieldPath);
-        log(`Current value: [${newValue.toString()}] `);
-        if (newValue === expectedValue) {
-          log('Matched!');
-          unsubscribe();
-          res();
-        }
-      }
-    });
-  });
+  const doc = await docRef.get();
+  if (doc.exists) {
+    const newValue = doc.get(fieldPath);
+    log(`Current value: [${newValue.toString()}] `);
+    if (newValue === expectedValue) {
+      log('Matched!');
+    }
+  }
 }
 
 async function assertQuerySizeEventually(
-  query,
-  expectedResultSize,
-  log = console.log
+  query, // Type: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
+  expectedResultSize, // Type: number
+  log = console.log // Type: (...data: any[]): void
 ) {
   log(`Asserting query result to have [${expectedResultSize}] entries ... `);
-  await sleep(1000);
-  const docs = await new Promise(res => {
-    unsubscribe = query.onSnapshot(snap => {
-      log(`Current result size: [${snap.size}]`);
-      if (snap.size === expectedResultSize) {
-        log('Matched!');
-        unsubscribe();
-        res(snap.docs);
-      }
-    });
-  });
+  const docs = await query.get();
+  log(`Current result size: [${docs.size}]`);
+  if (docs.size === expectedResultSize) {
+    log('Matched!');
+  }
   return docs;
 }

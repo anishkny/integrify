@@ -32,15 +32,15 @@ export function integrifyMaintainCount(
 
   return functions.firestore
     .document(`${rule.source.collection}/{docId}`)
-    .onWrite(change => {
+    .onWrite(async change => {
       // Determine if document has been added or deleted
       const documentWasAdded = change.after.exists && !change.before.exists;
       const documentWasDeleted = !change.after.exists && change.before.exists;
 
       if (documentWasAdded) {
-        return updateCount(change.after, Delta.Increment);
+        await updateCount(change.after, Delta.Increment);
       } else if (documentWasDeleted) {
-        return updateCount(change.before, Delta.Decrement);
+        await updateCount(change.before, Delta.Decrement);
       } else {
         console.log(
           `integrify: WARNING: Ignoring update trigger for MAINTAIN_COUNT on collection: [${rule.source.collection}]`
@@ -72,7 +72,7 @@ export function integrifyMaintainCount(
       }].[${rule.target.attribute}], id: [${targetId}], update: `,
       update
     );
-    return targetRef.update(update);
+    await targetRef.update(update);
   }
 }
 

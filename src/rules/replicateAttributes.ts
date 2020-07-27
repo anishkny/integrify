@@ -1,5 +1,6 @@
-import { Config, Rule, getPrimaryKey } from '../common';
+import { Config, Rule, PreHookFunction, getPrimaryKey } from '../common';
 import { firestore } from 'firebase-admin';
+import { WriteBatch } from '../utils/WriteBatch';
 const FieldValue = firestore.FieldValue;
 
 export interface ReplicateAttributesRule extends Rule {
@@ -15,7 +16,7 @@ export interface ReplicateAttributesRule extends Rule {
     isCollectionGroup?: boolean;
   }[];
   hooks?: {
-    pre?: Function;
+    pre?: PreHookFunction;
   };
 }
 
@@ -57,7 +58,7 @@ export function integrifyReplicateAttributes(
 
   return functions.firestore
     .document(rule.source.collection)
-    .onUpdate((change, context) => {
+    .onUpdate(async (change, context) => {
       // Get the last {...} in the source collection
       const primaryKeyValue = context.params[primaryKey];
       if (!primaryKeyValue) {
@@ -72,13 +73,12 @@ export function integrifyReplicateAttributes(
       );
 
       // Call "pre" hook if defined
-      const promises = [];
       if (rule.hooks && rule.hooks.pre) {
-        promises.push(rule.hooks.pre(change, context));
+        await rule.hooks.pre(change, context);
         console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
       }
 
-      // Check if atleast one of the attributes to be replicated was changed
+      // Check if at least one of the attributes to be replicated was changed
       let relevantUpdate = false;
       Object.keys(newValue).forEach(changedAttribute => {
         if (trackedMasterAttributes[changedAttribute]) {
@@ -95,7 +95,7 @@ export function integrifyReplicateAttributes(
 
       // Loop over each target specification to replicate attributes
       const db = config.config.db;
-      rule.targets.forEach(target => {
+      for (const target of rule.targets) {
         const targetCollection = target.collection;
         const update = {};
 
@@ -121,26 +121,22 @@ export function integrifyReplicateAttributes(
         } else {
           whereable = db.collection(targetCollection);
         }
-        promises.push(
-          whereable
-            .where(target.foreignKey, '==', primaryKeyValue)
-            .get()
-            .then(detailDocs => {
-              detailDocs.forEach(detailDoc => {
-                console.log(
-                  `integrify: On collection ${
-                    target.isCollectionGroup ? 'group ' : ''
-                  }[${target.collection}], id [${
-                    detailDoc.id
-                  }], applying update:`,
-                  update
-                );
-                promises.push(detailDoc.ref.update(update));
-              });
-            })
-        );
-      });
 
-      return Promise.all(promises);
+        const batchUpdate = new WriteBatch();
+        const detailDocs = await whereable
+          .where(target.foreignKey, '==', primaryKeyValue)
+          .get();
+
+        for (const doc of detailDocs.docs) {
+          console.log(
+            `integrify: On collection ${
+              target.isCollectionGroup ? 'group ' : ''
+            }[${target.collection}], id [${doc.id}], applying update:`,
+            update
+          );
+          batchUpdate.update(doc.ref, update);
+        }
+        await batchUpdate.commit();
+      }
     });
 }

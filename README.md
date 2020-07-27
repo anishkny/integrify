@@ -96,7 +96,7 @@ module.exports.deleteReferencesToMaster = integrify({
     {
       collection: 'detail1/$master/details', // Can reference source ID, will throw error if it doesn't exist
       // OR
-      collection: 'detail1/$fieldValue/details', // Can reference a field value, will throw error if it doesn't exist
+      collection: 'detail1/$source.fieldValue/details', // Can reference a field value (requires source), will throw error if it doesn't exist
     },
   ],
 

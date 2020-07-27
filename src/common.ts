@@ -1,3 +1,10 @@
+import { firestore, Change } from 'firebase-functions';
+import * as functions from 'firebase-functions';
+import {
+  DocumentSnapshot,
+  QueryDocumentSnapshot,
+} from 'firebase-functions/lib/providers/firestore';
+
 export interface Rule {
   rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'MAINTAIN_COUNT';
   name?: string;
@@ -9,6 +16,11 @@ export interface Config {
     functions: typeof import('firebase-functions');
   };
 }
+
+export type PreHookFunction = (
+  change: DocumentSnapshot | Change<QueryDocumentSnapshot>,
+  context: functions.EventContext
+) => Promise<void> | void;
 
 export function isRule(arg: Rule | Config): arg is Rule {
   return (arg as Rule).rule !== undefined;
@@ -25,6 +37,14 @@ enum Key {
 
 function regexMatches(text: string, regex: Key): string[] {
   return text.match(new RegExp(regex, 'g')) || [];
+}
+
+function containsSource(text: string): boolean {
+  return text.includes('$source.');
+}
+
+function removeVariableToken(text: string, source: boolean): string {
+  return source ? text.replace('$source.', '') : text.replace('$', '');
 }
 
 export function getPrimaryKey(
@@ -49,7 +69,12 @@ export function replaceReferencesWith(
   if (matches.length > 0 && fields) {
     hasFields = true;
     matches.forEach(match => {
-      const field = fields[match.replace('$', '')];
+      const isSourceField = containsSource(match);
+      const cleanedIndex = removeVariableToken(match, isSourceField);
+
+      const field = isSourceField
+        ? fields.source[cleanedIndex]
+        : fields[cleanedIndex];
       if (field) {
         console.log(
           `integrify: Detected dynamic reference, replacing [${match}] with [${field}]`

@@ -147,7 +147,7 @@ module.exports.deleteReferencesWithSnapshotFields = integrify({
       foreignKey: 'anotherId',
     },
     {
-      collection: 'somecoll/$testId/detail2',
+      collection: 'somecoll/$source.testId/detail2',
       foreignKey: 'anotherId',
     },
   ],
@@ -193,7 +193,7 @@ module.exports.deleteReferencesWithMissingFields = integrify({
       foreignKey: 'randomId',
     },
     {
-      collection: 'somecoll/$testId/detail2',
+      collection: 'somecoll/$source.testId/detail2',
       foreignKey: 'randomId',
     },
   ],
@@ -214,7 +214,7 @@ module.exports.deleteReferencesDeleteAllSubCollections = integrify({
   },
   targets: [
     {
-      collection: 'somecoll/$testId/detail2',
+      collection: 'somecoll/$source.testId/detail2',
       foreignKey: 'randomId',
       deleteAll: true,
     },
