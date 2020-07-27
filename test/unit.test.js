@@ -636,7 +636,7 @@ async function testDeleteMissingFieldsReferences(sut, t, name) {
     });
   });
 
-  t.is(error.message, 'integrify: Missing dynamic reference: [$testId]');
+  t.is(error.message, 'integrify: Missing dynamic reference: [$source.testId]');
 
   // Assert pre-hook was called (only for rules-in-situ)
   if (name === 'rules-in-situ') {
@@ -707,7 +707,6 @@ async function testDeleteAllSubCollections(sut, t, name) {
   await wrapped(snap, {
     params: {
       randomId: randomId,
-      testId: testId,
     },
   });
 
@@ -877,8 +876,8 @@ async function assertQuerySizeEventually(
 ) {
   log(`Asserting query result to have [${expectedResultSize}] entries ... `);
   const docs = await query.get();
-  log(`Current result size: [${docs.length}]`);
-  if (docs.length === expectedResultSize) {
+  log(`Current result size: [${docs.size}]`);
+  if (docs.size === expectedResultSize) {
     log('Matched!');
   }
   return docs;

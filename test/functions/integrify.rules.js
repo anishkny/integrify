@@ -107,7 +107,7 @@ module.exports = [
         foreignKey: 'anotherId',
       },
       {
-        collection: 'somecoll/$testId/detail2',
+        collection: 'somecoll/$source.testId/detail2',
         foreignKey: 'anotherId',
       },
     ],
@@ -137,7 +137,7 @@ module.exports = [
         foreignKey: 'randomId',
       },
       {
-        collection: 'somecoll/$testId/detail2',
+        collection: 'somecoll/$source.testId/detail2',
         foreignKey: 'randomId',
       },
     ],
@@ -150,7 +150,7 @@ module.exports = [
     },
     targets: [
       {
-        collection: 'somecoll/$testId/detail2',
+        collection: 'somecoll/$source.testId/detail2',
         foreignKey: 'randomId',
         deleteAll: true,
       },
