@@ -20,7 +20,7 @@ export interface Config {
 export type PreHookFunction = (
   change: DocumentSnapshot | Change<QueryDocumentSnapshot>,
   context: functions.EventContext
-) => Promise<void>;
+) => Promise<void> | void;
 
 export function isRule(arg: Rule | Config): arg is Rule {
   return (arg as Rule).rule !== undefined;

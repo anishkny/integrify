@@ -72,13 +72,12 @@ export function integrifyReplicateAttributes(
       );
 
       // Call "pre" hook if defined
-      // const promises = [];
       if (rule.hooks && rule.hooks.pre) {
         await rule.hooks.pre(change, context);
         console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
       }
 
-      // Check if atleast one of the attributes to be replicated was changed
+      // Check if at least one of the attributes to be replicated was changed
       let relevantUpdate = false;
       Object.keys(newValue).forEach(changedAttribute => {
         if (trackedMasterAttributes[changedAttribute]) {
@@ -121,6 +120,8 @@ export function integrifyReplicateAttributes(
         } else {
           whereable = db.collection(targetCollection);
         }
+
+        const batchUpdate = db.batch();
         const detailDocs = await whereable
           .where(target.foreignKey, '==', primaryKeyValue)
           .get();
@@ -132,8 +133,9 @@ export function integrifyReplicateAttributes(
             }[${target.collection}], id [${doc.id}], applying update:`,
             update
           );
-          await doc.ref.update(update);
+          batchUpdate.update(doc.ref, update);
         }
+        await batchUpdate.commit();
       }
     });
 }
