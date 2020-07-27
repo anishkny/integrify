@@ -1,5 +1,6 @@
 import { Config, Rule, PreHookFunction, getPrimaryKey } from '../common';
 import { firestore } from 'firebase-admin';
+import { WriteBatch } from '../utils/WriteBatch';
 const FieldValue = firestore.FieldValue;
 
 export interface ReplicateAttributesRule extends Rule {
@@ -121,7 +122,7 @@ export function integrifyReplicateAttributes(
           whereable = db.collection(targetCollection);
         }
 
-        const batchUpdate = db.batch();
+        const batchUpdate = new WriteBatch();
         const detailDocs = await whereable
           .where(target.foreignKey, '==', primaryKeyValue)
           .get();

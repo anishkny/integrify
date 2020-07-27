@@ -5,6 +5,7 @@ import {
   replaceReferencesWith,
   getPrimaryKey,
 } from '../common';
+import { WriteBatch } from '../utils/WriteBatch';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -112,7 +113,7 @@ export function integrifyDeleteReferences(
           whereable = whereable.where(target.foreignKey, '==', primaryKeyValue);
         }
 
-        const batchDelete = db.batch();
+        const batchDelete = new WriteBatch();
         const querySnap = await whereable.get();
         for (const doc of querySnap.docs) {
           console.log(
