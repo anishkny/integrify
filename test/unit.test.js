@@ -409,7 +409,6 @@ async function testDeleteReferences(sut, t, name) {
     t.is(state.context.params.masterId, masterId);
   }
 
-  console.log('Here 1');
   // Assert referencing docs were deleted
   await assertQuerySizeEventually(
     db.collection('detail1').where('masterId', '==', masterId),
