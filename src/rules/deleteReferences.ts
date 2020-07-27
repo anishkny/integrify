@@ -58,9 +58,7 @@ export function integrifyDeleteReferences(
       );
 
       // Call "pre" hook if defined
-      // const promises = [];
       if (rule.hooks && rule.hooks.pre) {
-        // promises.push();
         await rule.hooks.pre(snap, context);
         console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
       }
@@ -114,6 +112,7 @@ export function integrifyDeleteReferences(
           whereable = whereable.where(target.foreignKey, '==', primaryKeyValue);
         }
 
+        const batchDelete = db.batch();
         const querySnap = await whereable.get();
         for (const doc of querySnap.docs) {
           console.log(
@@ -121,8 +120,9 @@ export function integrifyDeleteReferences(
               target.isCollectionGroup ? ' (group)' : ''
             }, id [${doc.id}]`
           );
-          await doc.ref.delete();
+          batchDelete.delete(doc.ref);
         }
+        await batchDelete.commit();
       }
     });
 }
