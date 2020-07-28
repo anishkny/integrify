@@ -59,6 +59,10 @@ module.exports.replicateMasterToDetail = integrify({
       // Code to execute before replicating attributes
       // See: https://firebase.google.com/docs/functions/firestore-events
     },
+    post: (change, context) => {
+      // Code to execute after replicating attributes
+      // See: https://firebase.google.com/docs/functions/firestore-events
+    },
   },
 });
 ```
@@ -104,6 +108,10 @@ module.exports.deleteReferencesToMaster = integrify({
   hooks: {
     pre: (snap, context) => {
       // Code to execute before deleting references
+      // See: https://firebase.google.com/docs/functions/firestore-events
+    },
+    post: (snap, context) => {
+      // Code to execute after deleting references
       // See: https://firebase.google.com/docs/functions/firestore-events
     },
   },
