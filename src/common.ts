@@ -15,7 +15,7 @@ export interface Config {
 export type HookFunction<T> = (
   change: T,
   context: functions.EventContext
-) => Promise<T> | void;
+) => Promise<void> | void;
 
 export function isRule(arg: Rule | Config): arg is Rule {
   return (arg as Rule).rule !== undefined;
