@@ -18,8 +18,8 @@ export interface ReplicateAttributesRule extends Rule {
     isCollectionGroup?: boolean;
   }[];
   hooks?: {
-    pre?: HookFunction;
-    post?: HookFunction;
+    pre?: HookFunction<Change<QueryDocumentSnapshot>>;
+    post?: HookFunction<Change<QueryDocumentSnapshot>>;
   };
 }
 
@@ -142,10 +142,10 @@ export function integrifyReplicateAttributes(
         await batchUpdate.commit();
       }
 
-      // // Call "pre" hook if defined
-      // if (rule.hooks && rule.hooks.pre) {
-      //   await rule.hooks.pre(change, context);
-      //   console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
-      // }
+      // Call "post" hook if defined
+      if (rule.hooks && rule.hooks.post) {
+        await rule.hooks.post(change, context);
+        console.log(`integrify: Running post-hook: ${rule.hooks.post}`);
+      }
     });
 }
