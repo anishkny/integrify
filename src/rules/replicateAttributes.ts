@@ -2,7 +2,7 @@ import { Config, Rule, HookFunction, getPrimaryKey } from '../common';
 import { firestore } from 'firebase-admin';
 import { Change } from 'firebase-functions';
 import { WriteBatch } from '../utils/WriteBatch';
-import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { QueryDocumentSnapshot } from '@google-cloud/firestore';
 const FieldValue = firestore.FieldValue;
 
 export interface ReplicateAttributesRule extends Rule {

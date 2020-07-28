@@ -6,7 +6,7 @@ import {
   getPrimaryKey,
 } from '../common';
 import { WriteBatch } from '../utils/WriteBatch';
-import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { QueryDocumentSnapshot } from '@google-cloud/firestore';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
