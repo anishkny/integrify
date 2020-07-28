@@ -83,8 +83,8 @@ testsuites.forEach(testsuite => {
   test(`[${name}] test delete missing arguments error`, async t =>
     testDeleteMissingArgumentsError(sut, t, name));
 
-  // test(`[${name}] test delete pre hook`, async t =>
-  //   testDeletePrePostHooks(sut, t, name));
+  test(`[${name}] test delete pre and post hook`, async t =>
+    testDeletePrePostHooks(sut, t, name));
 });
 
 async function testPrimaryKey(sut, t, name) {
@@ -772,13 +772,7 @@ async function testDeletePrePostHooks(sut, t, name) {
   const randomId = makeid();
   const testId = makeid();
   const nestedDocRef = db.collection('somecoll').doc(testId);
-  await nestedDocRef.set({
-    values: ['first_id', testId, 'another_id'],
-  });
   await nestedDocRef.collection('detail2').add({
-    randomId: randomId,
-  });
-  await nestedDocRef.collection('detail3').add({
     randomId: randomId,
   });
   await assertQuerySizeEventually(
@@ -786,14 +780,6 @@ async function testDeletePrePostHooks(sut, t, name) {
       .collection('somecoll')
       .doc(testId)
       .collection('detail2')
-      .where('randomId', '==', randomId),
-    1
-  );
-  await assertQuerySizeEventually(
-    db
-      .collection('somecoll')
-      .doc(testId)
-      .collection('detail3')
       .where('randomId', '==', randomId),
     1
   );
@@ -809,6 +795,8 @@ async function testDeletePrePostHooks(sut, t, name) {
   setState({
     snap: null,
     context: null,
+    pre_count: 0,
+    post_count: 0,
   });
   await wrapped(snap, {
     params: {
@@ -821,6 +809,11 @@ async function testDeletePrePostHooks(sut, t, name) {
     const state = getState();
     t.truthy(state.snap);
     t.truthy(state.context);
+    t.is(state.pre_count, 1);
+    t.is(state.context.params.randomId, randomId);
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.post_count, 2);
     t.is(state.context.params.randomId, randomId);
   }
 
@@ -832,14 +825,6 @@ async function testDeletePrePostHooks(sut, t, name) {
       .collection('detail2')
       .where('randomId', '==', randomId),
     0
-  );
-  await assertQuerySizeEventually(
-    db
-      .collection('somecoll')
-      .doc(testId)
-      .collection('detail3')
-      .where('randomId', '==', randomId),
-    1
   );
 
   t.pass();
