@@ -1,6 +1,8 @@
-import { Config, Rule, PreHookFunction, getPrimaryKey } from '../common';
+import { Config, Rule, HookFunction, getPrimaryKey } from '../common';
 import { firestore } from 'firebase-admin';
+import { Change } from 'firebase-functions';
 import { WriteBatch } from '../utils/WriteBatch';
+import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 const FieldValue = firestore.FieldValue;
 
 export interface ReplicateAttributesRule extends Rule {
@@ -16,7 +18,8 @@ export interface ReplicateAttributesRule extends Rule {
     isCollectionGroup?: boolean;
   }[];
   hooks?: {
-    pre?: PreHookFunction;
+    pre?: HookFunction;
+    post?: HookFunction;
   };
 }
 
@@ -138,5 +141,11 @@ export function integrifyReplicateAttributes(
         }
         await batchUpdate.commit();
       }
+
+      // // Call "pre" hook if defined
+      // if (rule.hooks && rule.hooks.pre) {
+      //   await rule.hooks.pre(change, context);
+      //   console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
+      // }
     });
 }

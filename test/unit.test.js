@@ -82,6 +82,9 @@ testsuites.forEach(testsuite => {
     testDeleteAllSubCollections(sut, t, name));
   test(`[${name}] test delete missing arguments error`, async t =>
     testDeleteMissingArgumentsError(sut, t, name));
+
+  // test(`[${name}] test delete pre hook`, async t =>
+  //   testDeletePrePostHooks(sut, t, name));
 });
 
 async function testPrimaryKey(sut, t, name) {
@@ -759,6 +762,84 @@ async function testDeleteMissingArgumentsError(sut, t, name) {
   t.is(
     error.message,
     'integrify: missing foreign key or set deleteAll to true'
+  );
+
+  t.pass();
+}
+
+async function testDeletePrePostHooks(sut, t, name) {
+  // Create some docs referencing master doc
+  const randomId = makeid();
+  const testId = makeid();
+  const nestedDocRef = db.collection('somecoll').doc(testId);
+  await nestedDocRef.set({
+    values: ['first_id', testId, 'another_id'],
+  });
+  await nestedDocRef.collection('detail2').add({
+    randomId: randomId,
+  });
+  await nestedDocRef.collection('detail3').add({
+    randomId: randomId,
+  });
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('randomId', '==', randomId),
+    1
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail3')
+      .where('randomId', '==', randomId),
+    1
+  );
+
+  // Trigger function to delete references
+  const snap = fft.firestore.makeDocumentSnapshot(
+    {
+      testId,
+    },
+    `master/${randomId}`
+  );
+  const wrapped = fft.wrap(sut.deleteReferencesDeleteAllSubCollections);
+  setState({
+    snap: null,
+    context: null,
+  });
+  await wrapped(snap, {
+    params: {
+      randomId: randomId,
+    },
+  });
+
+  // Assert pre-hook was called (only for rules-in-situ)
+  if (name === 'rules-in-situ') {
+    const state = getState();
+    t.truthy(state.snap);
+    t.truthy(state.context);
+    t.is(state.context.params.randomId, randomId);
+  }
+
+  // Assert referencing docs were deleted
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail2')
+      .where('randomId', '==', randomId),
+    0
+  );
+  await assertQuerySizeEventually(
+    db
+      .collection('somecoll')
+      .doc(testId)
+      .collection('detail3')
+      .where('randomId', '==', randomId),
+    1
   );
 
   t.pass();
