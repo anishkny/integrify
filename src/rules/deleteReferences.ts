@@ -19,8 +19,8 @@ export interface DeleteReferencesRule extends Rule {
     deleteAll?: boolean;
   }[];
   hooks?: {
-    pre?: HookFunction;
-    post?: HookFunction;
+    pre?: HookFunction<QueryDocumentSnapshot>;
+    post?: HookFunction<QueryDocumentSnapshot>;
   };
 }
 
@@ -128,10 +128,10 @@ export function integrifyDeleteReferences(
         await batchDelete.commit();
       }
 
-      // // Call "pre" hook if defined
-      // if (rule.hooks && rule.hooks.pre) {
-      //   await rule.hooks.pre(snap, context);
-      //   console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
-      // }
+      // Call "post" hook if defined
+      if (rule.hooks && rule.hooks.post) {
+        await rule.hooks.post(snap, context);
+        console.log(`integrify: Running post-hook: ${rule.hooks.post}`);
+      }
     });
 }
