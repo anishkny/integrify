@@ -1,5 +1,5 @@
 const { integrify } = require('../../lib');
-const { setState } = require('./stateMachine');
+const { setState, getState } = require('./stateMachine');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
@@ -224,6 +224,14 @@ module.exports.deleteReferencesDeleteAllSubCollections = integrify({
       setState({
         snap,
         context,
+        pre_count: getState().pre_count + 1,
+      });
+    },
+    post: (snap, context) => {
+      setState({
+        snap,
+        context,
+        post_count: getState().pre_count + 1,
       });
     },
   },

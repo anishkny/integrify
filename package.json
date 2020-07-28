@@ -1,6 +1,6 @@
 {
   "name": "integrify",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Enforce referential integrity in Firestore using Cloud Functions",
   "keywords": [
     "firebase",
@@ -9,10 +9,10 @@
     "integrity",
     "functions"
   ],
-  "homepage": "https://github.com/anishkny/integrify",
+  "homepage": "https://github.com/GitLiveApp/integrify",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anishkny/integrify.git"
+    "url": "https://github.com/GitLiveApp/integrify.git"
   },
   "license": "MIT",
   "author": {
@@ -117,5 +117,8 @@
         "section": "Tests"
       }
     ]
+  },
+  "publishConfig": { 
+    "registry": "https://npm.pkg.github.com/" 
   }
 }

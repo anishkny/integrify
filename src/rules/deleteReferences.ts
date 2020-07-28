@@ -1,11 +1,12 @@
 import {
   Config,
   Rule,
-  PreHookFunction,
+  HookFunction,
   replaceReferencesWith,
   getPrimaryKey,
 } from '../common';
 import { WriteBatch } from '../utils/WriteBatch';
+import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -18,7 +19,8 @@ export interface DeleteReferencesRule extends Rule {
     deleteAll?: boolean;
   }[];
   hooks?: {
-    pre?: PreHookFunction;
+    pre?: HookFunction<QueryDocumentSnapshot>;
+    post?: HookFunction<QueryDocumentSnapshot>;
   };
 }
 
@@ -124,6 +126,12 @@ export function integrifyDeleteReferences(
           batchDelete.delete(doc.ref);
         }
         await batchDelete.commit();
+      }
+
+      // Call "post" hook if defined
+      if (rule.hooks && rule.hooks.post) {
+        await rule.hooks.post(snap, context);
+        console.log(`integrify: Running post-hook: ${rule.hooks.post}`);
       }
     });
 }
