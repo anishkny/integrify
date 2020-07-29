@@ -7,6 +7,7 @@ import {
 } from '../common';
 import { WriteBatch } from '../utils/WriteBatch';
 import { QueryDocumentSnapshot } from '@google-cloud/firestore';
+import { CloudFunction } from 'firebase-functions';
 
 export interface DeleteReferencesRule extends Rule {
   source: {
@@ -31,7 +32,7 @@ export function isDeleteReferencesRule(arg: Rule): arg is DeleteReferencesRule {
 export function integrifyDeleteReferences(
   rule: DeleteReferencesRule,
   config: Config
-) {
+): CloudFunction<QueryDocumentSnapshot> {
   const functions = config.config.functions;
 
   rule.targets.forEach(target =>

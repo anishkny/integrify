@@ -1,6 +1,6 @@
 import { Config, Rule, HookFunction, getPrimaryKey } from '../common';
 import { firestore } from 'firebase-admin';
-import { Change } from 'firebase-functions';
+import { CloudFunction, Change } from 'firebase-functions';
 import { WriteBatch } from '../utils/WriteBatch';
 import { QueryDocumentSnapshot } from '@google-cloud/firestore';
 const FieldValue = firestore.FieldValue;
@@ -32,7 +32,7 @@ export function isReplicateAttributesRule(
 export function integrifyReplicateAttributes(
   rule: ReplicateAttributesRule,
   config: Config
-) {
+): CloudFunction<Change<QueryDocumentSnapshot>> {
   const functions = config.config.functions;
 
   console.log(
