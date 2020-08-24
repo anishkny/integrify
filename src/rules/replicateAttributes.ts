@@ -35,16 +35,16 @@ export function integrifyReplicateAttributes(
 ): CloudFunction<Change<QueryDocumentSnapshot>> {
   const functions = config.config.functions;
 
-  console.log(
-    `integrify: Creating function to replicate source collection [${rule.source.collection}]`
-  );
-  rule.targets.forEach(target => {
-    Object.keys(target.attributeMapping).forEach(sourceAttribute => {
-      console.log(
-        `integrify: Replicating [${rule.source.collection}].[${sourceAttribute}] => [${target.collection}].[${target.attributeMapping[sourceAttribute]}]`
-      );
-    });
-  });
+  // console.log(
+  //   `integrify: Creating function to replicate source collection [${rule.source.collection}]`
+  // );
+  // rule.targets.forEach(target => {
+  //   Object.keys(target.attributeMapping).forEach(sourceAttribute => {
+  //     console.log(
+  //       `integrify: Replicating [${rule.source.collection}].[${sourceAttribute}] => [${target.collection}].[${target.attributeMapping[sourceAttribute]}]`
+  //     );
+  //   });
+  // });
 
   const { hasPrimaryKey, primaryKey } = getPrimaryKey(rule.source.collection);
   if (!hasPrimaryKey) {
@@ -78,7 +78,7 @@ export function integrifyReplicateAttributes(
       // Call "pre" hook if defined
       if (rule.hooks && rule.hooks.pre) {
         await rule.hooks.pre(change, context);
-        console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
+        // console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
       }
 
       // Check if at least one of the attributes to be replicated was changed
