@@ -71,9 +71,9 @@ export function replaceReferencesWith(
         ? fields.source[cleanedIndex]
         : fields[cleanedIndex];
       if (field) {
-        console.log(
-          `integrify: Detected dynamic reference, replacing [${match}] with [${field}]`
-        );
+        // console.log(
+        //   `integrify: Detected dynamic reference, replacing [${match}] with [${field}]`
+        // );
         targetCollection = targetCollection.replace(match, field);
       } else {
         throw new Error(`integrify: Missing dynamic reference: [${match}]`);
