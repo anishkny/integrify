@@ -3,11 +3,12 @@ const { setState } = require('./stateMachine');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp({ projectId: 'dummy-project' });
+admin.initializeApp();
 const db = admin.firestore();
 
 integrify({ config: { db, functions } });
 
+// Specify rules in situ
 module.exports.replicateMasterToDetail = integrify({
   rule: 'REPLICATE_ATTRIBUTES',
   source: {
@@ -73,3 +74,6 @@ module.exports.maintainFavoritesCount = integrify({
     attribute: 'favoritesCount',
   },
 });
+
+// Specify rules from "./integrify.rules.js"
+const rulesFromFiles = integrify();
