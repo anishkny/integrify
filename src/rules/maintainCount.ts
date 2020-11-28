@@ -1,4 +1,7 @@
 import * as admin from 'firebase-admin';
+import { Change, CloudFunction } from 'firebase-functions';
+import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+
 import { Config, Rule } from '../common';
 
 export interface MaintainCountRule extends Rule {
@@ -19,10 +22,12 @@ export function isMaintainCountRule(arg: Rule): arg is MaintainCountRule {
 // TODO: Provide MAINTAIN_SHARDED_COUNT implementing distributed counters.
 //       See: https://firebase.google.com/docs/firestore/solutions/counters
 
+export type MaintainCountFunction = CloudFunction<Change<DocumentSnapshot>>;
+
 export function integrifyMaintainCount(
   rule: MaintainCountRule,
   config: Config
-) {
+): MaintainCountFunction {
   const functions = config.config.functions;
   const db = config.config.db;
 
@@ -32,7 +37,7 @@ export function integrifyMaintainCount(
 
   return functions.firestore
     .document(`${rule.source.collection}/{docId}`)
-    .onWrite(change => {
+    .onWrite((change) => {
       // Determine if document has been added or deleted
       const documentWasAdded = change.after.exists && !change.before.exists;
       const documentWasDeleted = !change.after.exists && change.before.exists;

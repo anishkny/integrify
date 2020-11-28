@@ -1,3 +1,6 @@
+import { Change, CloudFunction } from 'firebase-functions';
+import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+
 import { Config, Rule } from '../common';
 
 export interface ReplicateAttributesRule extends Rule {
@@ -13,6 +16,7 @@ export interface ReplicateAttributesRule extends Rule {
     isCollectionGroup?: boolean;
   }[];
   hooks?: {
+    // eslint-disable-next-line @typescript-eslint/ban-types
     pre?: Function;
   };
 }
@@ -23,17 +27,21 @@ export function isReplicateAttributesRule(
   return arg.rule === 'REPLICATE_ATTRIBUTES';
 }
 
+export type ReplicateAttributesFunction = CloudFunction<
+  Change<DocumentSnapshot>
+>;
+
 export function integrifyReplicateAttributes(
   rule: ReplicateAttributesRule,
   config: Config
-) {
+): ReplicateAttributesFunction {
   const functions = config.config.functions;
 
   console.log(
     `integrify: Creating function to replicate source collection [${rule.source.collection}]`
   );
-  rule.targets.forEach(target => {
-    Object.keys(target.attributeMapping).forEach(sourceAttribute => {
+  rule.targets.forEach((target) => {
+    Object.keys(target.attributeMapping).forEach((sourceAttribute) => {
       console.log(
         `integrify: Replicating [${rule.source.collection}].[${sourceAttribute}] => [${target.collection}].[${target.attributeMapping[sourceAttribute]}]`
       );
@@ -42,8 +50,8 @@ export function integrifyReplicateAttributes(
 
   // Create map of master attributes to track for replication
   const trackedMasterAttributes = {};
-  rule.targets.forEach(target => {
-    Object.keys(target.attributeMapping).forEach(masterAttribute => {
+  rule.targets.forEach((target) => {
+    Object.keys(target.attributeMapping).forEach((masterAttribute) => {
       trackedMasterAttributes[masterAttribute] = true;
     });
   });
@@ -67,7 +75,7 @@ export function integrifyReplicateAttributes(
 
       // Check if atleast one of the attributes to be replicated was changed
       let relevantUpdate = false;
-      Object.keys(newValue).forEach(changedAttribute => {
+      Object.keys(newValue).forEach((changedAttribute) => {
         if (trackedMasterAttributes[changedAttribute]) {
           relevantUpdate = true;
         }
@@ -82,12 +90,12 @@ export function integrifyReplicateAttributes(
 
       // Loop over each target specification to replicate atributes
       const db = config.config.db;
-      rule.targets.forEach(target => {
+      rule.targets.forEach((target) => {
         const targetCollection = target.collection;
         const update = {};
 
         // Create "update" mapping each changed attribute from source => target
-        Object.keys(newValue).forEach(changedAttribute => {
+        Object.keys(newValue).forEach((changedAttribute) => {
           if (target.attributeMapping[changedAttribute]) {
             update[target.attributeMapping[changedAttribute]] =
               newValue[changedAttribute];
@@ -112,8 +120,8 @@ export function integrifyReplicateAttributes(
           whereable
             .where(target.foreignKey, '==', masterId)
             .get()
-            .then(detailDocs => {
-              detailDocs.forEach(detailDoc => {
+            .then((detailDocs) => {
+              detailDocs.forEach((detailDoc) => {
                 console.log(
                   `integrify: On collection ${
                     target.isCollectionGroup ? 'group ' : ''

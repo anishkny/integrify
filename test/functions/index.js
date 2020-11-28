@@ -3,7 +3,7 @@ const { setState } = require('./stateMachine');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp({}, 'test-app');
+admin.initializeApp({ projectId: 'dummy-project' });
 const db = admin.firestore();
 
 integrify({ config: { db, functions } });

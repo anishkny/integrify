@@ -1,0 +1,6 @@
+.eslintrc.js
+.prettierrc.js
+coverage
+lib
+node_modules
+test
