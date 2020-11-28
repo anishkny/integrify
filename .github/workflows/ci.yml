@@ -22,4 +22,7 @@ jobs:
           java --version
           npm install
           npm test
-          cat coverage/lcov.info | npx coveralls
+      - name: Post Coverage
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
