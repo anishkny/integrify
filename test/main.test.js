@@ -77,6 +77,45 @@ describe('REPLICATE_ATTRIBUTES', () => {
   });
 });
 
+describe('DELETE_REFERENCES', () => {
+  it('should delete references', async () => {
+    // Create master document to replicate from
+    const masterRef = await db
+      .collection('master')
+      .add({ random: Math.random() });
+    const masterId = masterRef.id;
+
+    // Create couple of detail docs to replicate to
+    await db.collection('detail1').add({ masterId });
+    await db.collection('detail2').add({ masterId });
+
+    // Delete master doc
+    await masterRef.delete();
+
+    // Ensure detail docs are deleted
+    await assertQuerySizeEventually(
+      db.collection('detail1').where('masterId', '==', masterId),
+      0
+    );
+    await assertQuerySizeEventually(
+      db.collection('detail2').where('masterId', '==', masterId),
+      0
+    );
+
+    // Ensure prehook is called
+    await assertQuerySizeEventually(
+      db
+        .collection('prehooks')
+        .where(
+          'message',
+          '==',
+          '[6a8f4f8f090c] DELETE_REFERENCES prehook was called!'
+        ),
+      1
+    );
+  });
+});
+
 // Helper functions
 function randstr() {
   return Math.random().toString(36).substr(2);
@@ -84,6 +123,17 @@ function randstr() {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function keypress() {
+  console.log('Press any key to continue...');
+  process.stdin.setRawMode(true);
+  return new Promise((resolve) =>
+    process.stdin.once('data', () => {
+      process.stdin.setRawMode(false);
+      resolve();
+    })
+  );
 }
 
 async function assertQuerySizeEventually(
