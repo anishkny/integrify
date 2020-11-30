@@ -3,11 +3,11 @@ module.exports = [
     rule: 'REPLICATE_ATTRIBUTES',
     name: 'replicateMasterToDetailFromFile',
     source: {
-      collection: 'master',
+      collection: 'rules-file-master',
     },
     targets: [
       {
-        collection: 'detail1',
+        collection: 'rules-file-detail1',
         foreignKey: 'masterId',
         attributeMapping: {
           masterField1: 'detail1Field1',
@@ -15,7 +15,7 @@ module.exports = [
         },
       },
       {
-        collection: 'detail2',
+        collection: 'rules-file-detail2',
         foreignKey: 'masterId',
         attributeMapping: {
           masterField1: 'detail2Field1',
@@ -29,15 +29,15 @@ module.exports = [
     rule: 'DELETE_REFERENCES',
     name: 'deleteReferencesToMasterFromFile',
     source: {
-      collection: 'master',
+      collection: 'rules-file-master',
     },
     targets: [
       {
-        collection: 'detail1',
+        collection: 'rules-file-detail1',
         foreignKey: 'masterId',
       },
       {
-        collection: 'detail2',
+        collection: 'rules-file-detail2',
         foreignKey: 'masterId',
         isCollectionGroup: true,
       },
@@ -47,11 +47,11 @@ module.exports = [
     rule: 'MAINTAIN_COUNT',
     name: 'maintainFavoritesCountFromFile',
     source: {
-      collection: 'favorites',
+      collection: 'rules-file-favorites',
       foreignKey: 'articleId',
     },
     target: {
-      collection: 'articles',
+      collection: 'rules-file-articles',
       attribute: 'favoritesCount',
     },
   },

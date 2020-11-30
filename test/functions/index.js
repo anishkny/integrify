@@ -1,5 +1,4 @@
 const { integrify } = require('../../lib');
-const { setState } = require('./stateMachine');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
@@ -34,8 +33,10 @@ module.exports.replicateMasterToDetail = integrify({
     },
   ],
   hooks: {
-    pre: (change, context) => {
-      setState({ change, context });
+    pre: async (change, context) => {
+      await db.collection('prehooks').add({
+        message: '[788a32e05504] REPLICATE_ATTRIBUTES prehook was called!',
+      });
     },
   },
 });
@@ -57,8 +58,10 @@ module.exports.deleteReferencesToMaster = integrify({
     },
   ],
   hooks: {
-    pre: (snap, context) => {
-      setState({ snap, context });
+    pre: async (snap, context) => {
+      await db.collection('prehooks').add({
+        message: '[6a8f4f8f090c] DELETE_REFERENCES prehook was called!',
+      });
     },
   },
 });

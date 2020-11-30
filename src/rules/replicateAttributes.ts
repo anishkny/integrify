@@ -68,6 +68,7 @@ export function integrifyReplicateAttributes(
 
       // Call "pre" hook if defined
       const promises = [];
+      // istanbul ignore else
       if (rule.hooks && rule.hooks.pre) {
         promises.push(rule.hooks.pre(change, context));
         console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
