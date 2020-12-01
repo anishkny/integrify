@@ -46,7 +46,7 @@
     "standard-version": "^8.0.1",
     "tslint": "^6.0.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.7.5"
+    "typescript": "^4.1.2"
   },
   "peerDependencies": {
     "firebase-admin": "^8.9.2",
