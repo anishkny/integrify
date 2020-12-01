@@ -3,4 +3,5 @@
 coverage
 lib
 node_modules
+nyc.config.js
 test

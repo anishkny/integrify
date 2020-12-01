@@ -116,6 +116,64 @@ describe('DELETE_REFERENCES', () => {
   });
 });
 
+describe('MAINTAIN_COUNT', () => {
+  it('should maintain count', async () => {
+    // Create an article to be favorited
+    const articleId = randstr();
+    await db.collection('articles').doc(articleId).set({ favoritesCount: 0 });
+
+    // Add a few "favorites" for the article
+    const NUM_TIMES_TO_FAVORITE = 5;
+    const favorites = [];
+    for (let i = 0; i < NUM_TIMES_TO_FAVORITE; ++i) {
+      favorites.push(await db.collection('favorites').add({ articleId }));
+    }
+
+    // Ensure an update on a "favorite" is ignored
+    await favorites[0].update({ random: Math.random() });
+
+    // Ensure "favoritesCount" is correct
+    await assertQuerySizeEventually(
+      db
+        .collection('articles')
+        .where(admin.firestore.FieldPath.documentId(), '==', articleId)
+        .where('favoritesCount', '==', NUM_TIMES_TO_FAVORITE),
+      1
+    );
+
+    // Remove a few "favorites" for the article
+    const NUM_TIMES_TO_UNFAVORITE = 3;
+    for (let i = 0; i < NUM_TIMES_TO_UNFAVORITE; ++i) {
+      await favorites[i].delete();
+    }
+
+    // Ensure "favoritesCount" is correct
+    await assertQuerySizeEventually(
+      db
+        .collection('articles')
+        .where(admin.firestore.FieldPath.documentId(), '==', articleId)
+        .where(
+          'favoritesCount',
+          '==',
+          NUM_TIMES_TO_FAVORITE - NUM_TIMES_TO_UNFAVORITE
+        ),
+      1
+    );
+
+    // Delete article and ensure favoritesCount is not updated on decrement or
+    // increment (See issue #3)
+    await db.collection('articles').doc(articleId).delete();
+    const newFavorite = await db.collection('favorites').add({ articleId });
+    await newFavorite.delete();
+    await assertQuerySizeEventually(
+      db
+        .collection('articles')
+        .where(admin.firestore.FieldPath.documentId(), '==', articleId),
+      0
+    );
+  });
+});
+
 // Helper functions
 function randstr() {
   return Math.random().toString(36).substr(2);
