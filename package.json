@@ -39,7 +39,7 @@
     "ava": "^3.1.0",
     "firebase-admin": "^8.9.2",
     "firebase-functions": "^3.3.0",
-    "firebase-functions-test": "^0.1.7",
+    "firebase-functions-test": "^0.2.3",
     "husky": "^4.2.1",
     "nyc": "^15.0.0",
     "prettier": "^1.19.1",
