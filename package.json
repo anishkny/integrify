@@ -34,7 +34,7 @@
     "release": "git push --dry-run && npm whoami && standard-version && git push --follow-tags origin master && npm publish"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
+    "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^8.3.4",
     "ava": "^3.1.0",
     "firebase-admin": "^8.9.2",
