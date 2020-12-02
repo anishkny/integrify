@@ -1,3 +1,6 @@
+import { CloudFunction } from 'firebase-functions';
+import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+
 import { Config, Rule } from '../common';
 
 export interface DeleteReferencesRule extends Rule {
@@ -10,6 +13,7 @@ export interface DeleteReferencesRule extends Rule {
     isCollectionGroup?: boolean;
   }[];
   hooks?: {
+    // eslint-disable-next-line @typescript-eslint/ban-types
     pre?: Function;
   };
 }
@@ -18,13 +22,15 @@ export function isDeleteReferencesRule(arg: Rule): arg is DeleteReferencesRule {
   return arg.rule === 'DELETE_REFERENCES';
 }
 
+export type DeleteReferencesFunction = CloudFunction<QueryDocumentSnapshot>;
+
 export function integrifyDeleteReferences(
   rule: DeleteReferencesRule,
   config: Config
-) {
+): DeleteReferencesFunction {
   const functions = config.config.functions;
 
-  rule.targets.forEach(target =>
+  rule.targets.forEach((target) =>
     console.log(
       `integrify: Creating function to delete all references to source [${rule.source.collection}] from [${target.collection}] linked by key [${target.foreignKey}]`
     )
@@ -40,6 +46,7 @@ export function integrifyDeleteReferences(
 
       // Call "pre" hook if defined
       const promises = [];
+      // istanbul ignore else
       if (rule.hooks && rule.hooks.pre) {
         promises.push(rule.hooks.pre(snap, context));
         console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
@@ -47,7 +54,7 @@ export function integrifyDeleteReferences(
 
       // Loop over each target
       const db = config.config.db;
-      rule.targets.forEach(target => {
+      rule.targets.forEach((target) => {
         console.log(
           `integrify: Deleting all docs in collection ${
             target.isCollectionGroup ? 'group ' : ''
@@ -66,8 +73,8 @@ export function integrifyDeleteReferences(
           whereable
             .where(target.foreignKey, '==', masterId)
             .get()
-            .then(querySnap => {
-              querySnap.forEach(doc => {
+            .then((querySnap) => {
+              querySnap.forEach((doc) => {
                 console.log(
                   `integrify: Deleting [${target.collection}]${
                     target.isCollectionGroup ? ' (group)' : ''

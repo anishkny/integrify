@@ -1,0 +1,7 @@
+.eslintrc.js
+.prettierrc.js
+coverage
+lib
+node_modules
+nyc.config.js
+test

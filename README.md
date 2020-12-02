@@ -1,11 +1,12 @@
 # 𝚒𝚗𝚝𝚎𝚐𝚛𝚒𝚏𝚢
 
-[![Build Status](https://travis-ci.com/anishkny/integrify.svg?branch=master)](https://travis-ci.com/anishkny/integrify)
+[![Build Status](https://github.com/anishkny/integrify/workflows/build/badge.svg)](https://github.com/anishkny/integrify/actions)
 [![Coverage Status](https://coveralls.io/repos/github/anishkny/integrify/badge.svg?branch=master)](https://coveralls.io/github/anishkny/integrify?branch=master)
-[![Greenkeeper badge](https://badges.greenkeeper.io/anishkny/integrify.svg)](https://greenkeeper.io/)
+[![Dependency Status](https://img.shields.io/badge/dependabot-active-blue)](https://dependabot.com)
 [![Security](https://img.shields.io/badge/security-GitHub-blue)](https://github.com/anishkny/integrify/network/alerts)
 [![npm package](https://img.shields.io/npm/v/integrify.svg)](https://www.npmjs.com/package/integrify)
 [![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
+[![Firebase Open Source](https://img.shields.io/badge/❤-Firebase_Open_Source-FFCA28)](https://firebaseopensource.com/projects/anishkny/integrify/)
 
 🤝 Enforce referential and data integrity in [Cloud Firestore](https://firebase.google.com/docs/firestore/) using [triggers](https://firebase.google.com/docs/functions/firestore-events)
 

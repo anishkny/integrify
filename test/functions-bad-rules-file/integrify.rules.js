@@ -1,5 +1,5 @@
 module.exports = [
   {
-    rule: 'bad_rule_3038d3c1644b',
+    rule: 'BAD_RULE_3038d3c1644b',
   },
 ];

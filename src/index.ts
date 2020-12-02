@@ -1,38 +1,47 @@
 import * as callerPath from 'caller-path';
 import { existsSync } from 'fs';
 import { dirname, sep } from 'path';
+
 import { Config, isConfig, isRule, Rule } from './common';
 import {
-  DeleteReferencesRule,
+  DeleteReferencesFunction,
   integrifyDeleteReferences,
   isDeleteReferencesRule,
 } from './rules/deleteReferences';
 import {
   integrifyMaintainCount,
   isMaintainCountRule,
-  MaintainCountRule,
+  MaintainCountFunction,
 } from './rules/maintainCount';
 import {
   integrifyReplicateAttributes,
   isReplicateAttributesRule,
-  ReplicateAttributesRule,
+  ReplicateAttributesFunction,
 } from './rules/replicateAttributes';
 
+export type IntegrifyFunction =
+  | ReplicateAttributesFunction
+  | DeleteReferencesFunction
+  | MaintainCountFunction;
+export type IntegrifyFunctionSet = { [key: string]: IntegrifyFunction };
+
 export function integrify(config: Config): null;
+export function integrify(rule: Rule): IntegrifyFunction;
+export function integrify(): IntegrifyFunctionSet;
+
 export function integrify(
-  rule: ReplicateAttributesRule | DeleteReferencesRule | MaintainCountRule
-): any;
-export function integrify(ruleOrConfig?: Rule | Config) {
+  ruleOrConfig?: Rule | Config
+): null | IntegrifyFunction | IntegrifyFunctionSet {
   if (!ruleOrConfig) {
     const rules = readRulesFromFile();
-    const functions = {};
-    rules.forEach(thisRule => {
+    const functions: IntegrifyFunctionSet = {};
+    rules.forEach((thisRule) => {
       if (
         isReplicateAttributesRule(thisRule) ||
         isDeleteReferencesRule(thisRule) ||
         isMaintainCountRule(thisRule)
       ) {
-        functions[thisRule.name] = integrify(thisRule);
+        functions[thisRule.name] = integrify(thisRule as Rule);
       } else {
         throw new Error(
           `integrify: Unknown rule: [${JSON.stringify(thisRule)}]`
