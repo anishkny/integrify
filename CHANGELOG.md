@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/anishkny/integrify/compare/v3.0.1...v4.0.0) (2020-12-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **types:** `integrify` now returns explicitly typed functions
+instead of `any`.
+
+Other changes:
+
+test(firebase): Use Firebase emulator for testing
+chore(lint): Move from tslint to eslint
+chore(ci): Move from TravisCI to Github Actions
+
+* chore(coverage): Use Coveralls GH action
+
+* test(error): Add tests for error conditions
+
+* chore(deps): Remove tslint
+
+* test(REPLICATE_ATTRIBUTES): Add test for REPLICATE_ATTRIBUTES
+
+* test(DELETE_REFERENCES): Add test
+
+* test(MAINTAIN_COUNT): Add test
+
+* chore(ci): Rename workflow
+
+docs(README): Update badges
+
+* chore(ci): Rename workflow to CI
+
+* chore(ci): Revert workflow name
+
+* feat(REPLICATE_ATTRIBUTES): Ensure tracked value has changed before updating
+
+### Features
+
+* **types:** Specify explicit return types ([#59](https://github.com/anishkny/integrify/issues/59)) ([58709a6](https://github.com/anishkny/integrify/commit/58709a6f4200315eae6e2d907099f1b7644de2e5))
+
+
+### Chores
+
+* **deps-dev:** bump eslint-config-prettier from 6.15.0 to 7.0.0 ([#65](https://github.com/anishkny/integrify/issues/65)) ([676aab7](https://github.com/anishkny/integrify/commit/676aab7cd578c7dbf7cca5d5814b6cf5affb6b53))
+* **deps-dev:** bump standard-version from 7.1.0 to 8.0.1 ([#58](https://github.com/anishkny/integrify/issues/58)) ([d3450e6](https://github.com/anishkny/integrify/commit/d3450e65907ece4c5d87f7fcb1a0c38b807d11f0))
+
 ### [3.0.1](https://github.com/anishkny/integrify/compare/v3.0.0...v3.0.1) (2020-02-02)
 
 
