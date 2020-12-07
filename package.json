@@ -31,7 +31,7 @@
     "build": "npm run clean && npm run lint && tsc",
     "test": "npm run build && ./test/run-tests.sh",
     "prepublishOnly": "npm run build",
-    "release": "git push --dry-run && npm whoami && standard-version && git push --follow-tags origin master && npm publish"
+    "release": "./release.sh"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
