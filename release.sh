@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefeil
+set -euxo pipefail
 
 export MAIN_BRANCH="main"
 
