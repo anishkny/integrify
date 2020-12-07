@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.1](https://github.com/anishkny/integrify/compare/v4.0.0...v4.0.1) (2020-12-07)
+
+
+### Bug Fixes
+
+* **script:** Fix typo in release script ([#67](https://github.com/anishkny/integrify/issues/67)) ([29e3444](https://github.com/anishkny/integrify/commit/29e344445fbde4f64d5b7971d2e83ec0bcaabe5d))
+
+
+### Chores
+
+* **release:** Add script to release new version ([#66](https://github.com/anishkny/integrify/issues/66)) ([5261347](https://github.com/anishkny/integrify/commit/5261347d14d48f98fb0a7c30333cd06a0ff22939))
+
 ## [4.0.0](https://github.com/anishkny/integrify/compare/v3.0.1...v4.0.0) (2020-12-07)
 
 
