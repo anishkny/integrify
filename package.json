@@ -44,7 +44,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "firebase-admin": "^9.4.1",
     "firebase-functions": "^3.11.0",
-    "firebase-tools": "^8.16.2",
+    "firebase-tools": "^9.0.0",
     "husky": "^4.3.0",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
