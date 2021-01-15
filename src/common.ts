@@ -17,6 +17,10 @@ export type HookFunction<T> = (
   context: functions.EventContext
 ) => Promise<void> | void;
 
+export type ForeignKeyFunction = (
+    foreignKey: string,
+) => Promise<string> | string;
+
 export function isRule(arg: Rule | Config): arg is Rule {
   return (arg as Rule).rule !== undefined;
 }
