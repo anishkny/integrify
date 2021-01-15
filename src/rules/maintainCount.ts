@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Config, Rule } from '../common';
+import { Config, ForeignKeyFunction, Rule } from '../common';
 
 export interface MaintainCountRule extends Rule {
   source: {
@@ -10,14 +10,14 @@ export interface MaintainCountRule extends Rule {
     collection: string;
     attribute: string;
   };
+  hooks?: {
+    pre?: ForeignKeyFunction;
+  };
 }
 
 export function isMaintainCountRule(arg: Rule): arg is MaintainCountRule {
   return arg.rule === 'MAINTAIN_COUNT';
 }
-
-// TODO: Provide MAINTAIN_SHARDED_COUNT implementing distributed counters.
-//       See: https://firebase.google.com/docs/firestore/solutions/counters
 
 export function integrifyMaintainCount(
   rule: MaintainCountRule,
@@ -25,10 +25,6 @@ export function integrifyMaintainCount(
 ) {
   const functions = config.config.functions;
   const db = config.config.db;
-
-  console.log(
-    `integrify: Creating function to maintain count of [${rule.source.collection}] with foreign key [${rule.source.foreignKey}] into [${rule.target.collection}].[${rule.target.attribute}]`
-  );
 
   return functions.firestore
     .document(`${rule.source.collection}/{docId}`)
@@ -52,7 +48,11 @@ export function integrifyMaintainCount(
     snap: FirebaseFirestore.DocumentSnapshot,
     delta: Delta
   ) {
-    const targetId = snap.get(rule.source.foreignKey);
+    let targetId = snap.get(rule.source.foreignKey);
+    // Check if there is formatting that needs to happen to the targetId
+    if (rule.hooks.pre) {
+      targetId = await rule.hooks.pre(targetId);
+    }
     const targetRef = db.collection(rule.target.collection).doc(targetId);
     const targetSnap = await targetRef.get();
 
