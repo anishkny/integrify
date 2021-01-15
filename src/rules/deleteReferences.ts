@@ -35,12 +35,6 @@ export function integrifyDeleteReferences(
 ): CloudFunction<QueryDocumentSnapshot> {
   const functions = config.config.functions;
 
-  // rule.targets.forEach(target =>
-  //   console.log(
-  //     `integrify: Creating function to delete all references to source [${rule.source.collection}] from [${target.collection}] linked by key [${target.foreignKey}]`
-  //   )
-  // );
-
   const { hasPrimaryKey, primaryKey } = getPrimaryKey(rule.source.collection);
   if (!hasPrimaryKey) {
     rule.source.collection = `${rule.source.collection}/{${primaryKey}}`;
@@ -64,7 +58,6 @@ export function integrifyDeleteReferences(
       // Call "pre" hook if defined
       if (rule.hooks && rule.hooks.pre) {
         await rule.hooks.pre(snap, context);
-        // console.log(`integrify: Running pre-hook: ${rule.hooks.pre}`);
       }
 
       // Loop over each target
@@ -132,7 +125,6 @@ export function integrifyDeleteReferences(
       // Call "post" hook if defined
       if (rule.hooks && rule.hooks.post) {
         await rule.hooks.post(snap, context);
-        // console.log(`integrify: Running post-hook: ${rule.hooks.post}`);
       }
     });
 }

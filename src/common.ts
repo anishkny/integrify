@@ -18,7 +18,7 @@ export type HookFunction<T> = (
 ) => Promise<void> | void;
 
 export type ForeignKeyFunction = (
-    foreignKey: string,
+  foreignKey: string
 ) => Promise<string> | string;
 
 export function isRule(arg: Rule | Config): arg is Rule {
