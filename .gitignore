@@ -5,3 +5,5 @@ test/functions/integrify.js
 .nyc_output
 coverage
 .vscode
+*.log
+*.xml
