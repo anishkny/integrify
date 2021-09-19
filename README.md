@@ -1,6 +1,6 @@
 # 𝚒𝚗𝚝𝚎𝚐𝚛𝚒𝚏𝚢
 
-[![Build Status](https://github.com/anishkny/integrify/workflows/build/badge.svg)](https://github.com/anishkny/integrify/actions)
+[![Build & Test](https://github.com/anishkny/integrify/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/anishkny/integrify/actions/workflows/build-and-test.yml)
 [![Code Coverage Status](https://codecov.io/gh/anishkny/integrify/branch/main/graph/badge.svg)](https://codecov.io/gh/anishkny/integrify)
 [![Dependency Status](https://img.shields.io/badge/dependabot-active-blue)](https://dependabot.com)
 [![Security](https://img.shields.io/badge/security-GitHub-blue)](https://github.com/anishkny/integrify/network/alerts)
