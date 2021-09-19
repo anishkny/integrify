@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.2](https://github.com/anishkny/integrify/compare/v4.0.1...v4.0.2) (2021-09-19)
+
+
+### Chores
+
+* **cd:** Add release workflow ([#87](https://github.com/anishkny/integrify/issues/87)) ([a77deb0](https://github.com/anishkny/integrify/commit/a77deb0af241097128b873429651f0715b715214))
+* **cd:** Add release workflow ([#88](https://github.com/anishkny/integrify/issues/88)) ([78f70e7](https://github.com/anishkny/integrify/commit/78f70e7ab2a0d24b8c2e8f08de32ed98e5b91828))
+* **ci:** Add release dry run step to build workflow ([c28a20a](https://github.com/anishkny/integrify/commit/c28a20a467bff3e6d8cebe576a97f34a61aeaea9))
+* **ci:** Reference Git env vars in release job ([7396714](https://github.com/anishkny/integrify/commit/7396714de6975da65fb6ec15dc14101586675850))
+* **ci:** Remove ref to release environment ([ac6a282](https://github.com/anishkny/integrify/commit/ac6a282c8691c94d854fd6ba8802cb896530e3ab))
+* **ci:** Use Codecov ([#86](https://github.com/anishkny/integrify/issues/86)) ([6202dca](https://github.com/anishkny/integrify/commit/6202dcac0d9a083b3769d630eac8c1a407ef6783))
+* **ci:** Use Release env in workflow ([7cb7e87](https://github.com/anishkny/integrify/commit/7cb7e874e2130ac401e17e39c0c6b80636e95ab6))
+* Configure Git username and email ([798165e](https://github.com/anishkny/integrify/commit/798165e1dedf0931b10770cd82dc02ea591c65ca))
+* **deps-dev:** bump @commitlint/cli from 11.0.0 to 12.0.0 ([606240a](https://github.com/anishkny/integrify/commit/606240a8516002db9d8a59cd10ed1dadd1b7a539))
+* **deps-dev:** bump @commitlint/config-conventional ([3034b8c](https://github.com/anishkny/integrify/commit/3034b8c46c83690a59a3f92a919ba01ee367e48c))
+* **deps-dev:** bump eslint-config-prettier from 7.2.0 to 8.0.0 ([5c0e97b](https://github.com/anishkny/integrify/commit/5c0e97b48270a7484e731d2a2bd8777f3382f197))
+* **deps-dev:** bump eslint-plugin-simple-import-sort ([#68](https://github.com/anishkny/integrify/issues/68)) ([35a30b5](https://github.com/anishkny/integrify/commit/35a30b5711b529736e8a38a1a5781861505c8063))
+* **deps-dev:** bump firebase-tools from 8.20.0 to 9.0.0 ([5bcdebb](https://github.com/anishkny/integrify/commit/5bcdebbc1b9cf98b6dddab4176339340077b4f7d))
+* **deps-dev:** bump husky from 4.3.8 to 5.0.9 ([5776b77](https://github.com/anishkny/integrify/commit/5776b778789e5338f98ecce8f463f522807c0198))
+* **deps-dev:** bump husky from 5.2.0 to 6.0.0 ([ed082eb](https://github.com/anishkny/integrify/commit/ed082eb86ae791413a507da6f012cbe5ea2d77f2))
+* **deps-dev:** bump husky from 6.0.0 to 7.0.0 ([#82](https://github.com/anishkny/integrify/issues/82)) ([20df5e8](https://github.com/anishkny/integrify/commit/20df5e8846db29bf008fc2bb884182a0c55cf990))
+* **workflow:** Fetch all Git history ([67549bb](https://github.com/anishkny/integrify/commit/67549bba727dc8879732fab45ee1891656f800b2))
+
 ### [4.0.1](https://github.com/anishkny/integrify/compare/v4.0.0...v4.0.1) (2020-12-07)
 
 
