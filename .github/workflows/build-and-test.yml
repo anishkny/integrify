@@ -1,11 +1,10 @@
-name: build
+name: Build & Test
 
-on: push
+on: [push, pull_request]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -14,7 +13,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 15
-      - name: Run Tests
+      - name: Build & Run Tests
         run: |
           set -e
           node -v
