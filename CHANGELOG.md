@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.3](https://github.com/anishkny/integrify/compare/v4.0.2...v4.0.3) (2021-09-19)
+
+
+### Chores
+
+* **release:** Run npm install ([1259784](https://github.com/anishkny/integrify/commit/1259784dd89b9bc3820c12b276347be53fdf15b8))
+
 ### [4.0.2](https://github.com/anishkny/integrify/compare/v4.0.1...v4.0.2) (2021-09-19)
 
 
