@@ -1,4 +1,4 @@
-import * as callerPath from 'caller-path';
+import callerPath from 'caller-path';
 import { existsSync } from 'fs';
 import { dirname, sep } from 'path';
 
