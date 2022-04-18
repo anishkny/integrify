@@ -1,6 +1,5 @@
 {
-  "dependencies": {
-    "firebase-admin": "^9.4.1",
-    "firebase-functions": "^3.11.0"
+  "engines": {
+    "node": "16"
   }
 }
