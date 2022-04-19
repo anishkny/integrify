@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.4](https://github.com/anishkny/integrify/compare/v4.0.3...v4.0.4) (2022-04-19)
+
+
+### Tests
+
+* Specify engine Node.js 16 ([#118](https://github.com/anishkny/integrify/issues/118)) ([ca3b4c3](https://github.com/anishkny/integrify/commit/ca3b4c3d9767efa0e6482b7722f5c9a03a1943e4))
+
+
+### Chores
+
+* **ci:** Allow manual build & test ([#117](https://github.com/anishkny/integrify/issues/117)) ([96d1239](https://github.com/anishkny/integrify/commit/96d1239bb4c47d9fef64c30de1bb328305c31512))
+* **ci:** Set job timeout ([82ec4bb](https://github.com/anishkny/integrify/commit/82ec4bbc2da410e13e79fe447a78caa2b95a811d))
+* **deps-dev:** bump eslint from 7.32.0 to 8.0.1 ([#91](https://github.com/anishkny/integrify/issues/91)) ([7f5dbd0](https://github.com/anishkny/integrify/commit/7f5dbd043ca7cfa7469d7cdbfab3ad8ce89892a1))
+* **peer-deps:** Include firebase-admin v10 ([#119](https://github.com/anishkny/integrify/issues/119)) ([1146297](https://github.com/anishkny/integrify/commit/114629775c60bfde05c4409ad36eec02ca8e522b))
+
 ### [4.0.3](https://github.com/anishkny/integrify/compare/v4.0.2...v4.0.3) (2021-09-19)
 
 
