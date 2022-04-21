@@ -4,7 +4,7 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 import { Config, Rule } from '../common';
 
-export interface MaintainCountRule extends Rule {
+export interface MaintainCountRule {
   source: {
     collection: string;
     foreignKey: string;
@@ -15,7 +15,7 @@ export interface MaintainCountRule extends Rule {
   };
 }
 
-export function isMaintainCountRule(arg: Rule): arg is MaintainCountRule {
+export function isMaintainCountRule(arg: Rule): boolean {
   return arg.rule === 'MAINTAIN_COUNT';
 }
 

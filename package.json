@@ -28,7 +28,8 @@
     "clean": "rm -rf lib/",
     "format": "prettier --check src/ test/",
     "lint": "npm run format && eslint src/ --max-warnings 0",
-    "build": "npm run clean && npm run lint && tsc",
+    "check": "tsc -p ./test/functions-typescript/tsconfig.json",
+    "build": "npm run clean && npm run lint && npm run check && tsc",
     "test": "npm run build && ./test/run-tests.sh",
     "prepublishOnly": "npm run build",
     "release": "./release.sh"

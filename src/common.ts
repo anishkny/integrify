@@ -1,7 +1,12 @@
-export interface Rule {
-  rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'MAINTAIN_COUNT';
-  name?: string;
-}
+import { DeleteReferencesRule } from './rules/deleteReferences';
+import { MaintainCountRule } from './rules/maintainCount';
+import { ReplicateAttributesRule } from './rules/replicateAttributes';
+
+export type Rule = { rule: string; name?: string } & (
+  | DeleteReferencesRule
+  | MaintainCountRule
+  | ReplicateAttributesRule
+);
 
 export interface Config {
   config: {

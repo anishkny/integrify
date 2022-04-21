@@ -3,7 +3,7 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 import { Config, Rule } from '../common';
 
-export interface ReplicateAttributesRule extends Rule {
+export interface ReplicateAttributesRule {
   source: {
     collection: string;
   };
@@ -21,9 +21,7 @@ export interface ReplicateAttributesRule extends Rule {
   };
 }
 
-export function isReplicateAttributesRule(
-  arg: Rule
-): arg is ReplicateAttributesRule {
+export function isReplicateAttributesRule(arg: Rule): boolean {
   return arg.rule === 'REPLICATE_ATTRIBUTES';
 }
 
