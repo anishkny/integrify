@@ -34,11 +34,10 @@ export const maintainCount = integrify({
   rule: 'MAINTAIN_COUNT',
   source: {
     collection: 'users',
+    foreignKey: 'userId',
   },
-  targets: [
-    {
-      collection: 'profiles',
-      foreignKey: 'userId',
-    },
-  ],
+  target: {
+    collection: 'profiles',
+    attribute: 'userCount',
+  },
 });

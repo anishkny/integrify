@@ -4,6 +4,8 @@ import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestor
 import { Config, Rule } from '../common';
 
 export interface DeleteReferencesRule {
+  rule: 'DELETE_REFERENCES';
+  name?: string;
   source: {
     collection: string;
   };
@@ -18,7 +20,7 @@ export interface DeleteReferencesRule {
   };
 }
 
-export function isDeleteReferencesRule(arg: Rule): boolean {
+export function isDeleteReferencesRule(arg: Rule): arg is DeleteReferencesRule {
   return arg.rule === 'DELETE_REFERENCES';
 }
 
