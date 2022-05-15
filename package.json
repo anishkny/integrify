@@ -45,7 +45,7 @@
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.15.6",
     "firebase-tools": "^10.1.2",
-    "husky": "^7.0.2",
+    "husky": "^8.0.1",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.4.1",
