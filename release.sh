@@ -10,7 +10,7 @@ git push --dry-run
 npm whoami
 
 ## Bump package version, generate CHANGELOG, tag release
-npx standard-version
+npx commit-and-tag-version
 
 ## Push to GitHub and NPM
 git push --follow-tags origin $MAIN_BRANCH
