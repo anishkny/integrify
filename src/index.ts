@@ -5,6 +5,7 @@ import { dirname, sep } from 'path';
 import { Config, isConfig, isRule, Rule } from './common';
 import {
   DeleteReferencesFunction,
+  DeleteReferencesRule,
   integrifyDeleteReferences,
   isDeleteReferencesRule,
 } from './rules/deleteReferences';
@@ -12,11 +13,13 @@ import {
   integrifyMaintainCount,
   isMaintainCountRule,
   MaintainCountFunction,
+  MaintainCountRule,
 } from './rules/maintainCount';
 import {
   integrifyReplicateAttributes,
   isReplicateAttributesRule,
   ReplicateAttributesFunction,
+  ReplicateAttributesRule,
 } from './rules/replicateAttributes';
 
 export type IntegrifyFunction =
@@ -53,11 +56,20 @@ export function integrify(
     setCurrentConfig(ruleOrConfig);
   } else if (isRule(ruleOrConfig)) {
     if (isReplicateAttributesRule(ruleOrConfig)) {
-      return integrifyReplicateAttributes(ruleOrConfig, currentConfig);
+      return integrifyReplicateAttributes(
+        ruleOrConfig as ReplicateAttributesRule,
+        currentConfig
+      );
     } else if (isDeleteReferencesRule(ruleOrConfig)) {
-      return integrifyDeleteReferences(ruleOrConfig, currentConfig);
+      return integrifyDeleteReferences(
+        ruleOrConfig as DeleteReferencesRule,
+        currentConfig
+      );
     } else if (isMaintainCountRule(ruleOrConfig)) {
-      return integrifyMaintainCount(ruleOrConfig, currentConfig);
+      return integrifyMaintainCount(
+        ruleOrConfig as MaintainCountRule,
+        currentConfig
+      );
     } else {
       throw new Error(
         `integrify: Unknown rule: [${JSON.stringify(ruleOrConfig)}]`

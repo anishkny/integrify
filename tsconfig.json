@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "lib",
     "declaration": true,
-    "target": "es5",
+    "target": "ESNext",
+    "moduleResolution": "Node",
     "lib": ["es5", "es2015.promise"],
     "inlineSourceMap": true
   },

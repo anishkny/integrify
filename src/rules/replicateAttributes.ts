@@ -1,9 +1,11 @@
 import { Change, CloudFunction } from 'firebase-functions';
-import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
 
 import { Config, Rule } from '../common';
 
-export interface ReplicateAttributesRule extends Rule {
+export interface ReplicateAttributesRule {
+  rule: 'REPLICATE_ATTRIBUTES';
+  name?: string;
   source: {
     collection: string;
   };

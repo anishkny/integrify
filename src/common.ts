@@ -1,7 +1,11 @@
-export interface Rule {
-  rule: 'REPLICATE_ATTRIBUTES' | 'DELETE_REFERENCES' | 'MAINTAIN_COUNT';
-  name?: string;
-}
+import { DeleteReferencesRule } from './rules/deleteReferences';
+import { MaintainCountRule } from './rules/maintainCount';
+import { ReplicateAttributesRule } from './rules/replicateAttributes';
+
+export type Rule =
+  | DeleteReferencesRule
+  | MaintainCountRule
+  | ReplicateAttributesRule;
 
 export interface Config {
   config: {
@@ -11,9 +15,13 @@ export interface Config {
 }
 
 export function isRule(arg: Rule | Config): arg is Rule {
-  return (arg as Rule).rule !== undefined;
+  return isObject(arg) && 'rule' in arg;
 }
 
 export function isConfig(arg: Rule | Config): arg is Config {
-  return (arg as Config).config !== undefined;
+  return isObject(arg) && 'config' in arg;
+}
+
+function isObject(arg: unknown): boolean {
+  return arg !== null && typeof arg === 'object';
 }

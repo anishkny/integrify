@@ -1,9 +1,11 @@
 import { CloudFunction } from 'firebase-functions';
-import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { QueryDocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
 
 import { Config, Rule } from '../common';
 
-export interface DeleteReferencesRule extends Rule {
+export interface DeleteReferencesRule {
+  rule: 'DELETE_REFERENCES';
+  name?: string;
   source: {
     collection: string;
   };
