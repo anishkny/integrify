@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin';
 import { Change, CloudFunction } from 'firebase-functions';
-import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
 
 import { Config, Rule } from '../common';
 
