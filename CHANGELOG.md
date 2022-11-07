@@ -1,6 +1,23 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [4.1.0](https://github.com/anishkny/integrify/compare/v4.0.4...v4.1.0) (2022-11-07)
+
+
+### Features
+
+* Support calling integrify from TypeScript ([#121](https://github.com/anishkny/integrify/issues/121)) ([ddc1f38](https://github.com/anishkny/integrify/commit/ddc1f382734c2ce54499658993aa410d30b4a0fc))
+
+
+### Chores
+
+* **ci:** Upgrade actions ([#151](https://github.com/anishkny/integrify/issues/151)) ([c8c1a34](https://github.com/anishkny/integrify/commit/c8c1a344480f67b8815df8f089ebf2d59c50a7bc))
+* **deps:** Update @commitlint/cli to version 17.0.2 ([#134](https://github.com/anishkny/integrify/issues/134)) ([904d987](https://github.com/anishkny/integrify/commit/904d987324387e2de05b58a13ae86a751ea50977))
+* **deps:** Update eslint-plugin-simple-import-sort to version 8.0.0 ([#142](https://github.com/anishkny/integrify/issues/142)) ([bb71aa9](https://github.com/anishkny/integrify/commit/bb71aa9d0fd6d379f0df32846ce3acab5dc1edd2))
+* **deps:** Update firebase-tools to version 11.0.1 ([#133](https://github.com/anishkny/integrify/issues/133)) ([9f8e10c](https://github.com/anishkny/integrify/commit/9f8e10c6acdbc483954da50465e5d28b3099779e))
+* **deps:** Update husky to version 8.0.1 ([07ffaf2](https://github.com/anishkny/integrify/commit/07ffaf2f0d1584be287337d22022a5c7e2005311))
+* **release:** Use commit-and-tag-version ([#153](https://github.com/anishkny/integrify/issues/153)) ([06e8e7b](https://github.com/anishkny/integrify/commit/06e8e7be8d8f04f94c0fff7fa6821991daf5216c))
 
 ### [4.0.4](https://github.com/anishkny/integrify/compare/v4.0.3...v4.0.4) (2022-04-19)
 
