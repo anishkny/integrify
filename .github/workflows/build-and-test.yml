@@ -33,6 +33,6 @@ jobs:
           npm install
           npm test
       - name: Release Dry Run
-        run: npx standard-version --dry-run
+        run: npx commit-and-tag-version --dry-run
       - name: Post Coverage
         uses: codecov/codecov-action@v3
