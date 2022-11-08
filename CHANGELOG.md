@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [4.1.1](https://github.com/anishkny/integrify/compare/v4.1.0...v4.1.1) (2022-11-08)
+
+
+### Docs
+
+* **README:** Remove badges ([fffd285](https://github.com/anishkny/integrify/commit/fffd28501c58789c03494c4ca55065e0f56c8fe0))
+
 ## [4.1.0](https://github.com/anishkny/integrify/compare/v4.0.4...v4.1.0) (2022-11-07)
 
 
