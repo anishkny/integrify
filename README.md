@@ -2,8 +2,6 @@
 
 [![Build & Test](https://github.com/anishkny/integrify/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/anishkny/integrify/actions/workflows/build-and-test.yml)
 [![Code Coverage Status](https://codecov.io/gh/anishkny/integrify/branch/main/graph/badge.svg)](https://codecov.io/gh/anishkny/integrify)
-[![Dependency Status](https://img.shields.io/badge/dependabot-active-blue)](https://dependabot.com)
-[![Security](https://img.shields.io/badge/security-GitHub-blue)](https://github.com/anishkny/integrify/network/alerts)
 [![npm package](https://img.shields.io/npm/v/integrify.svg)](https://www.npmjs.com/package/integrify)
 [![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
 [![Firebase Open Source](https://img.shields.io/badge/❤-Firebase_Open_Source-FFCA28)](https://firebaseopensource.com/projects/anishkny/integrify/)
