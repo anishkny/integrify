@@ -1,6 +1,20 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+All notable changes to this project will be documented in this file.
+See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [Unreleased](https://github.com/anishkny/integrify/commits/main) (if any)
+
+## [4.1.2](https://github.com/anishkny/integrify/compare/v4.1.1...v4.1.2) (2023-03-24)
+
+
+### Chores
+
+* **deps:** Update commit-and-tag-version to version 11.0.0 ([#155](https://github.com/anishkny/integrify/issues/155)) ([2281ac5](https://github.com/anishkny/integrify/commit/2281ac59453fc9607049bfafbd287f0794ee6492))
+* **deps:** Update eslint-plugin-simple-import-sort to version 10.0.0 ([#156](https://github.com/anishkny/integrify/issues/156)) ([1e24181](https://github.com/anishkny/integrify/commit/1e241819bd6d06d051ac4dc077887af669e6850f))
+* **deps:** Update eslint-plugin-simple-import-sort to version 9.0.0 ([#154](https://github.com/anishkny/integrify/issues/154)) ([a9c88ab](https://github.com/anishkny/integrify/commit/a9c88ab530562798052364c75a6307a66a0384dd))
+* **deps:** Update typescript to version 5.0.2 ([#157](https://github.com/anishkny/integrify/issues/157)) ([6d165bc](https://github.com/anishkny/integrify/commit/6d165bc0f0110c6e8eaa218610d1a5ff373cef81))
+* Push to NPM before GitHub ([#158](https://github.com/anishkny/integrify/issues/158)) ([10ee384](https://github.com/anishkny/integrify/commit/10ee38404722f56358eb77c2cc65423b2cfdfb45))
 
 ### [4.1.1](https://github.com/anishkny/integrify/compare/v4.1.0...v4.1.1) (2022-11-08)
 
