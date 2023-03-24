@@ -12,6 +12,6 @@ npm whoami
 ## Bump package version, generate CHANGELOG, tag release
 npx commit-and-tag-version
 
-## Push to GitHub and NPM
-git push --follow-tags origin $MAIN_BRANCH
+## Push to NPM and GitHub
 npm publish
+git push --follow-tags origin $MAIN_BRANCH
