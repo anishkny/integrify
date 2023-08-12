@@ -42,7 +42,7 @@
     "chai": "^4.3.7",
     "commit-and-tag-version": "^11.0.0",
     "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "firebase-admin": "^11.2.0",
     "firebase-functions": "^4.0.2",
