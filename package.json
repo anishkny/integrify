@@ -40,7 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "chai": "^4.3.7",
-    "commit-and-tag-version": "^11.0.0",
+    "commit-and-tag-version": "^12.0.0",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
