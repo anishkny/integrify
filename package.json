@@ -35,23 +35,23 @@
     "release": "./release.sh"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.2.0",
-    "@commitlint/config-conventional": "^17.2.0",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.42.1",
-    "chai": "^4.3.7",
+    "@commitlint/cli": "^18.4.2",
+    "@commitlint/config-conventional": "^18.4.2",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "chai": "^4.3.10",
     "commit-and-tag-version": "^12.0.0",
-    "eslint": "^8.27.0",
+    "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "firebase-admin": "^11.2.0",
-    "firebase-functions": "^4.0.2",
-    "firebase-tools": "^12.2.1",
-    "husky": "^8.0.1",
-    "mocha": "^10.1.0",
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.5.0",
+    "firebase-tools": "^12.9.1",
+    "husky": "^8.0.3",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "prettier": "^3.0.0",
-    "typescript": "^5.0.2"
+    "prettier": "^3.1.0",
+    "typescript": "^5.2.2"
   },
   "peerDependencies": {
     "firebase-admin": "^9.11.1 || ^10",
@@ -61,7 +61,7 @@
     "coveralls": "^3.1.1"
   },
   "dependencies": {
-    "caller-path": "^3.0.1"
+    "caller-path": "3.0.1"
   },
   "husky": {
     "hooks": {
