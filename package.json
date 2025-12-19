@@ -41,7 +41,7 @@
     "@typescript-eslint/parser": "^6.11.0",
     "chai": "^4.3.10",
     "commit-and-tag-version": "^12.0.0",
-    "eslint": "^8.54.0",
+    "eslint": "^9.39.2",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "firebase-admin": "^11.11.0",
