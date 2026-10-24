@@ -128,6 +128,7 @@ export function integrifyReplicateAttributes(
             .where(target.foreignKey, '==', masterId)
             .get()
             .then((detailDocs) => {
+              const updatePromises = [];
               detailDocs.forEach((detailDoc) => {
                 console.log(
                   `integrify: On collection ${
@@ -137,8 +138,9 @@ export function integrifyReplicateAttributes(
                   }], applying update:`,
                   update
                 );
-                promises.push(detailDoc.ref.update(update));
+                updatePromises.push(detailDoc.ref.update(update));
               });
+              return Promise.all(updatePromises);
             })
         );
       });

@@ -76,14 +76,16 @@ export function integrifyDeleteReferences(
             .where(target.foreignKey, '==', masterId)
             .get()
             .then((querySnap) => {
+              const deletePromises = [];
               querySnap.forEach((doc) => {
                 console.log(
                   `integrify: Deleting [${target.collection}]${
                     target.isCollectionGroup ? ' (group)' : ''
                   }, id [${doc.id}]`
                 );
-                promises.push(doc.ref.delete());
+                deletePromises.push(doc.ref.delete());
               });
+              return Promise.all(deletePromises);
             })
         );
       });
