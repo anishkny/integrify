@@ -5,6 +5,10 @@ See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-
 
 ## [Unreleased](https://github.com/anishkny/integrify/commits/main) (if any)
 
+### Bug Fixes
+
+* Await child document writes in delete-reference and attribute-replication triggers.
+
 ## [4.1.2](https://github.com/anishkny/integrify/compare/v4.1.1...v4.1.2) (2023-03-24)
 
 
